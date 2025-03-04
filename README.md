@@ -30,8 +30,6 @@
 # Elementos do Grupo:
 
 - **Bernardo Carvalho - 20231441**
-- **Thiago Moreirão - 20221437**
-- **David Bação - 20230331** 
 
 **Repositório no GitHub:** https://github.com/ThZedd/Zoopolis
 
@@ -209,8 +207,7 @@ Estas aplicações oferecem várias funções básicas, tais como, mapas e guias
 
 - Developers:
    - Bernardo Carvalho;
-   - Thiago Moreirão;
-   - David Bação;
+  
 ## 8. Stakeholders
 
 - **European University - IADE**

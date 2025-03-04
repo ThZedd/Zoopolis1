@@ -299,7 +299,7 @@ Lucas é apaixonado por tecnologia e natureza. Cresceu a assistir documentários
 
 ---
 
-**Nome:**Ana Clara
+**Nome:** Ana Clara
 - **Idade**: 35 anos
 - **Profissão**: Professora de biologia no secundário
 - **Localização**: Cidade grande, a 40 km do zoológico

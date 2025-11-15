@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Animal Info</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="animal.js"></script>
+</head>
+<body>
+<h1>Animal Info</h1>
+<label for="animalId"></label><input type="text" id="animalId" placeholder="Enter Animal ID">
+<button onclick="fetchAnimal()">Fetch Animal</button>
+
+<div id="animalInfo">
+    <h2 id="animalName">Animal Name</h2>
+    <p id="animalCiName">Scientific Name</p>
+    <p id="animalDescription">Description</p>
+    <img id="animalImage" src="" alt="Animal Image" width="200">
+</div>
+
+
+</body>
+</html>

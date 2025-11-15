@@ -1,0 +1,101 @@
+services:
+  postgres_primary:
+    image: postgres:18
+    container_name: postgres_primary
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ThZ3d1112
+      POSTGRES_DB: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./src/main/resources/persistence/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - primary_data:/var/lib/postgresql
+    networks:
+      - zoopolis_network
+
+  postgres_replica:
+      image: postgres:18
+      container_name: postgres_replica
+      environment:
+        POSTGRES_USER: postgres
+        POSTGRES_PASSWORD: ThZ3d1112
+        POSTGRES_DB: postgres
+      ports:
+        - "5433:5432"
+      volumes:
+        - ./src/main/resources/persistence/init.sql:/docker-entrypoint-initdb.d/init.sql  # MESMO SCRIPT
+        - replica_data:/var/lib/postgresql
+      networks:
+        - zoopolis_network
+      command: >
+        postgres
+        -c hot_standby=on
+      depends_on:
+        - postgres_primary
+
+  nginx_db_proxy:
+    image: alpine:latest
+    container_name: nginx_db_proxy
+    ports:
+      - "5434:5432"
+    networks:
+      - zoopolis_network
+    healthcheck:
+      test: ["CMD", "sh", "-c", "timeout 5 nc -z localhost 5432 || exit 1"]
+      interval: 10s
+      timeout: 8s
+      retries: 3
+      start_period: 40s
+    command: >
+      sh -c "
+        apk add --no-cache socat bash &&
+        echo 'PostgreSQL Proxy com failover automático iniciado' &&
+        while true; do
+          if nc -z -w 2 postgres_primary 5432 2>/dev/null; then
+            echo \"[$$(date)] Conectado ao PostgreSQL PRIMARY\" &&
+            socat TCP-LISTEN:5432,fork,reuseaddr TCP:postgres_primary:5432
+          elif nc -z -w 2 postgres_replica 5432 2>/dev/null; then
+            echo \"[$$(date)] PRIMARY indisponível, conectado ao REPLICA\" &&
+            socat TCP-LISTEN:5432,fork,reuseaddr TCP:postgres_replica:5432
+          else
+            echo \"[$$(date)] Ambos PostgreSQL indisponíveis - aguardando...\" &&
+            sleep 5
+          fi &&
+          sleep 2
+        done
+      "
+    depends_on:
+      - postgres_primary
+      - postgres_replica
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: backend
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://nginx_db_proxy:5432/postgres?targetServerType=primary&loadBalanceHosts=true&hostRecheckSeconds=10&connectTimeout=5
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: ThZ3d1112
+      SPRING_JPA_HIBERNATE_DDL_AUTO: validate
+      SERVER_PORT: 8081
+      # Configurações robustas para failover
+      SPRING_DATASOURCE_HIKARI_CONNECTION-TIMEOUT: 30000
+      SPRING_DATASOURCE_HIKARI_VALIDATION-TIMEOUT: 5000
+      SPRING_DATASOURCE_HIKARI_KEEPALIVE_TIME: 30000
+    networks:
+      - zoopolis_network
+    depends_on:
+      nginx_db_proxy:
+        condition: service_healthy
+
+networks:
+  zoopolis_network:
+    driver: bridge
+
+volumes:
+  primary_data:
+  replica_data:

@@ -37,9 +37,9 @@ public class AnimalDTOController {
     // Endpoint que retorna todos os animais como AnimalDTO
     @GetMapping(path = "", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<AnimalDTO> getAllAnimals() {
-        logger.info("Sending all Animals as DTO");
+        logger.info("Sending all Animals as DTO using native query");
 
-        return ((List<Animal>) animalRepository.findAll()).stream()
+        return animalRepository.findAllAnimalsNatively().stream()
                 .map(animal -> {
                     String imageUrl = animal.getImageUrl();
                     if (imageUrl == null || imageUrl.isEmpty()) {
@@ -80,9 +80,3 @@ public class AnimalDTOController {
                 .orElseThrow(() -> new RuntimeException("Animal not found"));
     }
 }
-
-
-
-
-
-

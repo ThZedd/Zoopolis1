@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -31,17 +31,23 @@ class AnimalDTOViewModel(
     }
     private fun loadAnimals() {
         viewModelScope.launch {
-            animalsrepository.getAnimals().collectLatest { result ->
+            animalsrepository.getAnimals().collect { result ->
                 when (result) {
                     is Result.Error -> {
+                        // Se quiseres ver o erro no Logcat, podes usar:
+                        // Log.e("AnimalViewModel", "Erro: ${result.message}", result.exception)
                         _showErrorToastChannel.send(true)
                     }
-                    is Result.Sucess -> {
+                    is Result.Success -> { // CORREÇÃO: Escrito com dois 's'
                         result.data?.let { animals ->
                             _animals.update {
                                 animals
                             }
                         }
+                    }
+                    is Result.Loading -> {
+                        // CORREÇÃO: Obrigatório tratar o estado Loading
+                        // Podes usar isto para mostrar uma barra de progresso se tiveres uma variável _isLoading
                     }
                 }
             }
@@ -50,17 +56,20 @@ class AnimalDTOViewModel(
 
     fun loadAnimalById(id: Int) {
         viewModelScope.launch {
-            animalsrepository.getAnimalsById(id).collectLatest { result ->
+            animalsrepository.getAnimalsById(id).collect { result ->
                 when (result) {
                     is Result.Error -> {
                         _showErrorToastChannel.send(true)
                     }
-                    is Result.Sucess -> {
+                    is Result.Success -> { // CORREÇÃO: Escrito com dois 's'
                         result.data?.let { animal ->
                             _animalById.update {
                                 animal
                             }
                         }
+                    }
+                    is Result.Loading -> {
+                        // CORREÇÃO: Obrigatório tratar o estado Loading
                     }
                 }
             }

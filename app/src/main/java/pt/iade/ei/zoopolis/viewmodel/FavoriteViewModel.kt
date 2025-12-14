@@ -49,13 +49,20 @@ class FavoriteViewModel(
                     is Result.Error -> {
                         _showErrorToastChannel.send(true)
                     }
-                    is Result.Sucess -> {
+                    is Result.Success -> { // CORREÇÃO 1: 'Success' com dois 's'
                         result.data?.let { animals ->
                             _favoriteAnimals.update { animals }
+
+                            // Cria um mapa onde ID -> true para indicar que são favoritos
                             val updatedStatus = animals.associate { it.id to true }
                             _favoriteStatus.update { updatedStatus }
+
                             Log.d("FavoriteViewModel", "favoriteStatus after load: ${_favoriteStatus.value}")
                         }
+                    }
+                    is Result.Loading -> {
+                        // CORREÇÃO 2: Obrigatório tratar o estado Loading
+                        // Podes deixar vazio se não quiseres mostrar nada enquanto carrega
                     }
                 }
             }

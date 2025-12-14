@@ -48,9 +48,10 @@ public class PersonController {
         return personRepository.findById(id);
     }
 
-    // ===========================
-    // 🔐 REGISTO DE USUÁRIO
-    // ===========================
+    //Como estámos a usar Spring Data JPA (PersonRepository extends JpaRepository),
+    // o sistema trata da segurança automaticamente, ou seja, proteje automaticamente contra SQL Injection
+    //REGISTO DE USUÁRIO
+
     @PostMapping(path = "/register", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public Person registerUser(@Valid @RequestBody Person newPerson) {
         logger.info("Registering a new user: {}", newPerson.getEmail());
@@ -60,6 +61,28 @@ public class PersonController {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Email already in use");
         }
 
+        // --- INICIO DA VALIDAÇÃO DA PASSWORD ---
+        String password = newPerson.getPassword();
+
+        // Regex explicado:
+        // (?=.*[0-9])       -> Pelo menos um número
+        // (?=.*[A-Z])       -> Pelo menos uma letra maiúscula
+        // (?=.*[@#$%^&+=!]) -> Pelo menos um caractere especial (podes adicionar mais à lista dentro dos parêntesis retos)
+        // .{8,}             -> Pelo menos 8 caracteres no total (opcional, mas recomendado)
+
+        // Se quiseres APENAS o que pediste (sem validar tamanho mínimo), usa este regex:
+        // "^(?=.*[0-9])(?=.*[A-Z])(?=.*[@#$%^&+=!]).*$"
+
+        String passwordPattern = "^(?=.*[0-9])(?=.*[A-Z])(?=.*[@#$%^&+=!]).*$";
+
+        if (password == null || !password.matches(passwordPattern)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password must have at least 1 uppercase letter, 1 number and 1 special character.");
+        }
+        // --- FIM DA VALIDAÇÃO ---
+
+        // Forçar pontos a 0 para ninguém se registar já com pontos (Mass Assignment protection)
+        newPerson.setPoints(0);
+
         // Criptografa a senha antes de salvar
         String hashedPassword = passwordEncoder.encode(newPerson.getPassword());
         newPerson.setPassword(hashedPassword);
@@ -67,9 +90,8 @@ public class PersonController {
         return personRepository.save(newPerson);
     }
 
-    // ===========================
-    // 🔑 LOGIN DE USUÁRIO
-    // ===========================
+
+    //LOGIN
     @PostMapping(path = "/login", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public LoginResponseDTO loginUser(@Valid @RequestBody LoginRequestDTO loginRequest) {
         logger.info("Authenticating user: {}", loginRequest.getEmail());

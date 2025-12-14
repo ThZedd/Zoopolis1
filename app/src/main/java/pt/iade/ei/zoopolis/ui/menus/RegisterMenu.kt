@@ -63,24 +63,28 @@ fun RegisterMenu(viewModel: PersonViewModel) {
     var selectedGender by remember { mutableStateOf('M') }
     val genders = listOf('M', 'F', 'O')
     val focusManager = LocalFocusManager.current
-    var isLoading by remember { mutableStateOf(false) }
     val context = LocalContext.current
-    // Observando o resultado do registro
+
+    // Regex para validar a password (mesma lógica do backend)
+    // 1 numero, 1 maiuscula, 1 especial
+    val passwordPattern = "^(?=.*[0-9])(?=.*[A-Z])(?=.*[@#$%^&+=!]).*$"
+
     val registerResult by viewModel.registerResult.observeAsState()
 
-    // Aguardar o resultado do registro
+    // 1. A navegação só acontece AQUI, se o resultado for SUCESSO
     LaunchedEffect(registerResult) {
         when (val result = registerResult) {
-            is Result.Sucess -> {
-                // Registro bem-sucedido
-                Toast.makeText(context, "Registro bem-sucedido!", Toast.LENGTH_SHORT).show()
+            is Result.Success -> {
+                Toast.makeText(context, "Registo bem-sucedido!", Toast.LENGTH_SHORT).show()
+                // Só navegamos para a MainActivity se o registo funcionar
+                val intent = Intent(context, MainActivity::class.java)
+                // Flags para impedir que o utilizador volte ao login com o botão "voltar"
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                context.startActivity(intent)
             }
-
             is Result.Error -> {
-                // Erro no registro
                 Toast.makeText(context, "Erro: ${result.message}", Toast.LENGTH_SHORT).show()
             }
-
             else -> {}
         }
     }
@@ -101,6 +105,7 @@ fun RegisterMenu(viewModel: PersonViewModel) {
                 verticalArrangement = Arrangement.Top,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
+                // ... (O teu código de Imagem e Logo mantém-se igual aqui) ...
                 Image(
                     painter = painterResource(R.drawable.logozoo),
                     contentDescription = "Logo",
@@ -109,198 +114,103 @@ fun RegisterMenu(viewModel: PersonViewModel) {
                     alignment = Alignment.TopStart
                 )
 
-                // Card de registro
                 Card(
-                    modifier = Modifier
-                        .fillMaxSize(),
+                    modifier = Modifier.fillMaxSize(),
                     colors = CardDefaults.cardColors(containerColor = Color(0xFF58A458))
                 ) {
                     LazyColumn(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(top = 20.dp),
+                        modifier = Modifier.fillMaxSize().padding(top = 20.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Top
                     ) {
-                        item{
-                            Text(
-                            text = "Username",
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 16.sp,
-                            modifier = Modifier.padding(top = 8.dp, start = 3.dp),
-                            textAlign = TextAlign.Start,
-                            color = Color.White
-                        )
-                        TextField(
-                            value = username,
-                            onValueChange = { username = it },
-                            labelText = "Username",
-                            leadingIcon = Icons.Default.Person,
-                            onNext = { focusManager.moveFocus(androidx.compose.ui.focus.FocusDirection.Next) }
-                        )
+                        item {
+                            // ... (Campos de Username, Email, Password mantêm-se iguais) ...
+                            Text("Username", fontWeight = FontWeight.Bold, fontSize = 16.sp, modifier = Modifier.padding(top = 8.dp, start = 3.dp), textAlign = TextAlign.Start, color = Color.White)
+                            TextField(value = username, onValueChange = { username = it }, labelText = "Username", leadingIcon = Icons.Default.Person, onNext = { focusManager.moveFocus(androidx.compose.ui.focus.FocusDirection.Next) })
 
-                        Text(
-                            text = "Email",
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 16.sp,
-                            modifier = Modifier.padding(top = 8.dp, start = 3.dp),
-                            textAlign = TextAlign.Start,
-                            color = Color.White
-                        )
-                        TextField(
-                            value = email,
-                            onValueChange = { email = it },
-                            labelText = "Email",
-                            leadingIcon = Icons.Default.Person,
-                            onNext = { focusManager.moveFocus(androidx.compose.ui.focus.FocusDirection.Next) }
-                        )
+                            Text("Email", fontWeight = FontWeight.Bold, fontSize = 16.sp, modifier = Modifier.padding(top = 8.dp, start = 3.dp), textAlign = TextAlign.Start, color = Color.White)
+                            TextField(value = email, onValueChange = { email = it }, labelText = "Email", leadingIcon = Icons.Default.Person, onNext = { focusManager.moveFocus(androidx.compose.ui.focus.FocusDirection.Next) })
 
-                        Text(
-                            text = "Password",
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 16.sp,
-                            modifier = Modifier.padding(top = 8.dp, start = 3.dp),
-                            textAlign = TextAlign.Start,
-                            color = Color.White
-                        )
-                        TextField(
-                            value = password,
-                            onValueChange = { password = it },
-                            labelText = "Password",
-                            leadingIcon = Icons.Default.Lock,
-                            keyboardType = KeyboardType.Password,
-                            visualTransformation = PasswordVisualTransformation(),
-                            onNext = { focusManager.clearFocus() }
-                        )
-                        Spacer(modifier = Modifier.height(16.dp))
-                        // Gender selection
-                        Text(
-                            text = "Gender",
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 16.sp,
-                            color = Color.White
-                        )
-                        Row {
-                            genders.forEach { gender ->
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    modifier = Modifier
-                                        .selectable(
-                                            selected = (selectedGender == gender),
-                                            onClick = { selectedGender = gender }
-                                        )
-                                        .padding(8.dp)
-                                ) {
-                                    RadioButton(
-                                        selected = (selectedGender == gender),
-                                        onClick = { selectedGender = gender },
-                                        colors = RadioButtonDefaults.colors(
-                                            selectedColor = Color.White,
-                                            unselectedColor = Color.hsl(124f, 0.68f, 0.16f)
-                                        )
-                                    )
-                                    Text(
-                                        text = gender.toString(),
-                                        color = Color.White,
-                                        modifier = Modifier.padding(start = 8.dp)
-                                    )
-                                }
-                            }
-                        }
-
-                        Spacer(modifier = Modifier.height(16.dp))
-
-                        Row {
-                            Spacer(modifier = Modifier.padding(start = 10.dp))
-                            IHaveAnAccountButton("I Have An Account", MainActivity::class.java)
-                            Spacer(modifier = Modifier.width(10.dp))
-                            Card(
-                                modifier = Modifier
-                                    .padding(top = 7.dp, bottom = 10.dp)
-                                    .size(width = 180.dp, height = 40.dp),
-                                colors = CardDefaults.cardColors(
-                                    containerColor = Color(0xFF1E1E1E)
-                                ),
-                                elevation = CardDefaults.cardElevation(
-                                    defaultElevation = 7.dp,
-                                ),
-                                onClick = {
-
-                                    // Verifique se os campos necessários estão preenchidos
-                                    if (username.isNotEmpty() && email.isNotEmpty() && password.isNotEmpty()) {
-                                        val person = Person(
-                                            name = username,
-                                            email = email,
-                                            password = password,
-                                            gender = selectedGender,
-                                            points = 0
-                                            // Outros campos, se necessário
-                                        )
-                                        // Chama o método register no ViewModel
-                                        viewModel.register(person)
-                                        val intent = Intent(context, MainActivity::class.java)
-                                        context.startActivity(intent)
-                                    } else {
-                                        Toast.makeText(context, "Por favor, preencha todos os campos", Toast.LENGTH_SHORT).show()
-                                    }
-                                }
+                            Text("Password", fontWeight = FontWeight.Bold, fontSize = 16.sp, modifier = Modifier.padding(top = 8.dp, start = 3.dp), textAlign = TextAlign.Start, color = Color.White)
+                            TextField(
+                                value = password,
+                                onValueChange = { password = it },
+                                labelText = "Password",
+                                leadingIcon = Icons.Default.Lock,
+                                keyboardType = KeyboardType.Password,
+                                visualTransformation = PasswordVisualTransformation(),
+                                onNext = { focusManager.clearFocus() }
                             )
-                             {
+                            Spacer(modifier = Modifier.height(16.dp))
 
-                                Row(
-                                    modifier = Modifier.fillMaxSize(),
-                                    horizontalArrangement = Arrangement.Center,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-
-                                    Box {
-                                        // Contorno - Desenha o texto em todas as direções para simular o contorno
-                                        Text(
-                                            text = "Register",
-                                            fontWeight = FontWeight.Bold,
-                                            fontSize = 16.sp,
-                                            textAlign = TextAlign.Center,
-                                            color = Color.Black, // Contorno geralmente é preto
-                                            style = TextStyle(
-                                                shadow = Shadow(
-                                                    color = Color.Black,
-                                                    offset = Offset(-3f, -3f),
-                                                    blurRadius = 0.75f
-                                                )
-                                            )
-                                        )
-
-                                        // Texto principal
-                                        Text(
-                                            text = "Register",
-                                            fontWeight = FontWeight.Bold,
-                                            fontSize = 16.sp,
-                                            textAlign = TextAlign.Center,
-                                            color = Color.White,
-                                            style = TextStyle(
-                                                shadow = Shadow(
-                                                    color = Color.Black,
-                                                    offset = Offset(
-                                                        3f,
-                                                        3f
-                                                    ), // Ajuste o deslocamento da sombra
-                                                    blurRadius = 0.75f // Aumente o valor para uma sombra mais suave
-                                                )
-                                            )
-                                        )
+                            // ... (Seleção de género mantém-se igual) ...
+                            Text("Gender", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color.White)
+                            Row {
+                                genders.forEach { gender ->
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        modifier = Modifier.selectable(selected = (selectedGender == gender), onClick = { selectedGender = gender }).padding(8.dp)
+                                    ) {
+                                        RadioButton(selected = (selectedGender == gender), onClick = { selectedGender = gender }, colors = RadioButtonDefaults.colors(selectedColor = Color.White, unselectedColor = Color.hsl(124f, 0.68f, 0.16f)))
+                                        Text(text = gender.toString(), color = Color.White, modifier = Modifier.padding(start = 8.dp))
                                     }
                                 }
                             }
-                        }
-                            Spacer(modifier = Modifier.padding(end = 20.dp))
-                    }
 
+                            Spacer(modifier = Modifier.height(16.dp))
+
+                            Row {
+                                Spacer(modifier = Modifier.padding(start = 10.dp))
+                                IHaveAnAccountButton("I Have An Account", MainActivity::class.java)
+                                Spacer(modifier = Modifier.width(10.dp))
+
+                                // BOTÃO REGISTER
+                                Card(
+                                    modifier = Modifier.padding(top = 7.dp, bottom = 10.dp).size(width = 180.dp, height = 40.dp),
+                                    colors = CardDefaults.cardColors(containerColor = Color(0xFF1E1E1E)),
+                                    elevation = CardDefaults.cardElevation(defaultElevation = 7.dp),
+                                    onClick = {
+                                        // 2. VERIFICAÇÃO ANTES DE ENVIAR
+                                        if (username.isNotEmpty() && email.isNotEmpty() && password.isNotEmpty()) {
+
+                                            // Verifica se a password cumpre o REGEX
+                                            if (password.matches(Regex(passwordPattern))) {
+                                                val person = Person(
+                                                    name = username,
+                                                    email = email,
+                                                    password = password,
+                                                    gender = selectedGender,
+                                                    points = 0
+                                                )
+                                                // Chama o ViewModel e espera pelo LaunchedEffect
+                                                viewModel.register(person)
+
+                                                // NOTA: Removi o startActivity daqui.
+                                                // Ele agora acontece lá em cima no LaunchedEffect
+                                            } else {
+                                                // AVISO AO UTILIZADOR (Fica na mesma página)
+                                                Toast.makeText(context, "A password requer: 1 Maiúscula, 1 Número, 1 Caracter Especial", Toast.LENGTH_LONG).show()
+                                            }
+
+                                        } else {
+                                            Toast.makeText(context, "Por favor, preencha todos os campos", Toast.LENGTH_SHORT).show()
+                                        }
+                                    }
+                                ) {
+                                    // ... (Conteúdo visual do botão mantém-se igual) ...
+                                    Row(modifier = Modifier.fillMaxSize(), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
+                                        Box {
+                                            Text(text = "Register", fontWeight = FontWeight.Bold, fontSize = 16.sp, textAlign = TextAlign.Center, color = Color.Black, style = TextStyle(shadow = Shadow(color = Color.Black, offset = Offset(-3f, -3f), blurRadius = 0.75f)))
+                                            Text(text = "Register", fontWeight = FontWeight.Bold, fontSize = 16.sp, textAlign = TextAlign.Center, color = Color.White, style = TextStyle(shadow = Shadow(color = Color.Black, offset = Offset(3f, 3f), blurRadius = 0.75f)))
+                                        }
+                                    }
+                                }
+                            }
+                            Spacer(modifier = Modifier.padding(end = 20.dp))
+                        }
                     }
                 }
             }
         }
     }
 }
-
-
-

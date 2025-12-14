@@ -68,6 +68,7 @@ dependencies {
     implementation (libs.androidx.lifecycle.livedata.ktx)
     implementation(libs.androidx.runtime.livedata)
     implementation(libs.play.services.maps)
+    implementation("com.google.android.gms:play-services-location:21.0.1")
     implementation(libs.androidx.appcompat)
     implementation (libs.androidx.fragment.ktx)
     implementation (libs.android.maps.utils)

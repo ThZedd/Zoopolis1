@@ -13,6 +13,10 @@ import pt.iade.Zoopolis.models.Person;
 import pt.iade.Zoopolis.models.AnimalDTO;
 import pt.iade.Zoopolis.models.repositories.FavoriteRepository;
 
+import java.text.Normalizer;
+import java.util.List;
+import java.util.stream.Collectors;
+
 @RestController
 @RequestMapping(path = "/api/favorite")
 public class FavoriteController {
@@ -20,6 +24,17 @@ public class FavoriteController {
 
     @Autowired
     private FavoriteRepository favoriteRepository;
+
+    // --- LÓGICA DE GERAR IMAGEM ADICIONADA ---
+    private String generateImageUrl(String name) {
+        if (name == null) return null;
+        String normalized = Normalizer.normalize(name, Normalizer.Form.NFD)
+                .replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
+        String url = "http://10.0.2.2:8081/api/images/" + normalized.toLowerCase().replace(" ", "-") + ".jpg";
+        logger.info("Generated Image URL for Favorite: {}", url);
+        return url;
+    }
+    // ------------------------------------------
 
     @GetMapping(path = "", produces = MediaType.APPLICATION_JSON_VALUE)
     public Iterable<Favorite> getFavorites() {
@@ -35,11 +50,36 @@ public class FavoriteController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    // --- MÉTODO ALTERADO PARA CORRIGIR O NULL ---
     @GetMapping(path = "/person/{personId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Iterable<AnimalDTO> getFavoriteAnimalsByPerson(@PathVariable int personId) {
+    public List<AnimalDTO> getFavoriteAnimalsByPerson(@PathVariable int personId) {
         logger.info("Fetching favorite animals for person with ID {}", personId);
-        return favoriteRepository.findAnimalsByPersonId(personId);
+
+        // Obtém a lista do repositório
+        List<AnimalDTO> favorites = (List<AnimalDTO>) favoriteRepository.findAnimalsByPersonId(personId);
+
+        // Processa cada animal para garantir que a imagem não é null
+        return favorites.stream()
+                .map(animal -> {
+                    String imageUrl = animal.getImageUrl();
+
+                    // Se a imagem for null ou vazia, gera o link automaticamente
+                    if (imageUrl == null || imageUrl.isEmpty()) {
+                        imageUrl = generateImageUrl(animal.getName());
+                    }
+
+                    // Recria o DTO com o URL correto (assumindo que tens este construtor no AnimalDTO)
+                    return new AnimalDTO(
+                            animal.getId(),
+                            animal.getName(),
+                            animal.getCiName(),
+                            animal.getDescription(),
+                            imageUrl
+                    );
+                })
+                .collect(Collectors.toList());
     }
+    // --------------------------------------------
 
     @GetMapping(path = "/isFavorite", produces = MediaType.APPLICATION_JSON_VALUE)
     public boolean isFavorite(@RequestParam int personId, @RequestParam int animalId) {

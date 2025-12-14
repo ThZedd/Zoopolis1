@@ -1,0 +1,541 @@
+[
+  {
+    "nome": "Laranjeiras (Metro)",
+    "lat": 38.7475369,
+    "lng": -9.170902,
+    "tipo": "PONTO",
+    "categoria": "TRANSPORTE"
+  },
+  {
+    "nome": "Praça de Espanha",
+    "lat": 38.737684,
+    "lng": -9.1592473,
+    "tipo": "PONTO",
+    "categoria": "CIDADE"
+  },
+  {
+    "nome": "Jardim Zoológico (Entrada/Geral)",
+    "lat": 38.7420882,
+    "lng": -9.1689132,
+    "tipo": "PONTO",
+    "categoria": "SERVICO"
+  },
+  {
+    "nome": "Carrossel",
+    "lat": 38.7434484,
+    "lng": -9.1683219,
+    "tipo": "PONTO",
+    "categoria": "SERVICO"
+  },
+  {
+    "nome": "McDonald's",
+    "lat": 38.7434275,
+    "lng": -9.1699526,
+    "tipo": "PONTO",
+    "categoria": "COMIDA"
+  },
+  {
+    "nome": "Comboio do Zoo",
+    "lat": 38.7432354,
+    "lng": -9.1707117,
+    "tipo": "PONTO",
+    "categoria": "TRANSPORTE"
+  },
+  {
+    "nome": "Snack-Bar Africa",
+    "lat": 38.7447463,
+    "lng": -9.1704399,
+    "tipo": "PONTO",
+    "categoria": "COMIDA"
+  },
+  {
+    "nome": "Bar Zoo",
+    "lat": 38.7429171,
+    "lng": -9.1721373,
+    "tipo": "PONTO",
+    "categoria": "COMIDA"
+  },
+  {
+    "nome": "Vale dos Tigres",
+    "lat": 38.7432704,
+    "lng": -9.1711608,
+    "tipo": "PONTO",
+    "categoria": "ANIMAL"
+  },
+  {
+    "nome": "Tigres Brancos",
+    "lat": 38.744536,
+    "lng": -9.1706392,
+    "tipo": "PONTO",
+    "categoria": "ANIMAL"
+  },
+  {
+    "nome": "Sete Rios (Estação/Zoo)",
+    "lat": 38.7424765,
+    "lng": -9.1674358,
+    "tipo": "PONTO",
+    "categoria": "TRANSPORTE"
+  },
+  {
+    "nome": "Rinocerontes Brancos",
+    "lat": 38.7443442,
+    "lng": -9.1703226,
+    "tipo": "PONTO",
+    "categoria": "ANIMAL"
+  },
+  {
+    "nome": "Pequenos Primatas",
+    "lat": 38.7441465,
+    "lng": -9.1707578,
+    "tipo": "PONTO",
+    "categoria": "ANIMAL"
+  },
+  {
+    "nome": "Ilha dos Macacos",
+    "lat": 38.7438071,
+    "lng": -9.1704214,
+    "tipo": "PONTO",
+    "categoria": "ANIMAL"
+  },
+  {
+    "nome": "Áxis, Veado-da-birmânia",
+    "lat": 38.742928,
+    "lng": -9.1715755,
+    "tipo": "PONTO",
+    "categoria": "ANIMAL"
+  },
+  {
+    "nome": "Bongos",
+    "lat": 38.7428199,
+    "lng": -9.1717875,
+    "tipo": "PONTO",
+    "categoria": "ANIMAL"
+  },
+  {
+    "nome": "Koalas e Cangurus",
+    "lat": 38.7432588,
+    "lng": -9.1718274,
+    "tipo": "PONTO",
+    "categoria": "ANIMAL"
+  },
+  {
+    "nome": "Bisonte-americano",
+    "lat": 38.742841,
+    "lng": -9.1724858,
+    "tipo": "PONTO",
+    "categoria": "ANIMAL"
+  },
+  {
+    "nome": "Búfalos",
+    "lat": 38.7429355,
+    "lng": -9.1726818,
+    "tipo": "PONTO",
+    "categoria": "ANIMAL"
+  },
+  {
+    "nome": "Tartaruga-gigante-de-aldabra",
+    "lat": 38.742979,
+    "lng": -9.172862,
+    "tipo": "PONTO",
+    "categoria": "ANIMAL"
+  },
+  {
+    "nome": "Aligátor-americano",
+    "lat": 38.7431357,
+    "lng": -9.1724443,
+    "tipo": "PONTO",
+    "categoria": "ANIMAL"
+  },
+  {
+    "nome": "Rinocerontes-indianos",
+    "lat": 38.7433744,
+    "lng": -9.172159,
+    "tipo": "PONTO",
+    "categoria": "ANIMAL"
+  },
+  {
+    "nome": "Suricatas",
+    "lat": 38.7435261,
+    "lng": -9.1724172,
+    "tipo": "PONTO",
+    "categoria": "ANIMAL"
+  },
+  {
+    "nome": "Girafas",
+    "lat": 38.744016,
+    "lng": -9.1725065,
+    "tipo": "PONTO",
+    "categoria": "ANIMAL"
+  },
+  {
+    "nome": "Órix-austral",
+    "lat": 38.7437922,
+    "lng": -9.1720426,
+    "tipo": "PONTO",
+    "categoria": "ANIMAL"
+  },
+  {
+    "nome": "Elandes",
+    "lat": 38.7438506,
+    "lng": -9.1715994,
+    "tipo": "PONTO",
+    "categoria": "ANIMAL"
+  },
+  {
+    "nome": "Panda-vermelho-do-nepal",
+    "lat": 38.7442037,
+    "lng": -9.1720043,
+    "tipo": "PONTO",
+    "categoria": "ANIMAL"
+  },
+  {
+    "nome": "Hipopótamos",
+    "lat": 38.7442932,
+    "lng": -9.1723487,
+    "tipo": "PONTO",
+    "categoria": "ANIMAL"
+  },
+  {
+    "nome": "Lémures",
+    "lat": 38.744425,
+    "lng": -9.1725352,
+    "tipo": "PONTO",
+    "categoria": "ANIMAL"
+  },
+  {
+    "nome": "Ilha dos Lémures",
+    "lat": 38.7444312,
+    "lng": -9.172151,
+    "tipo": "PONTO",
+    "categoria": "ANIMAL"
+  },
+  {
+    "nome": "Elefantes-africanos",
+    "lat": 38.7447806,
+    "lng": -9.1729194,
+    "tipo": "PONTO",
+    "categoria": "ANIMAL"
+  },
+  {
+    "nome": "Leões",
+    "lat": 38.7450277,
+    "lng": -9.1724427,
+    "tipo": "PONTO",
+    "categoria": "ANIMAL"
+  },
+  {
+    "nome": "Flamingo-rubro",
+    "lat": 38.7447194,
+    "lng": -9.1724379,
+    "tipo": "PONTO",
+    "categoria": "ANIMAL"
+  },
+  {
+    "nome": "Chimpanzé",
+    "lat": 38.7447904,
+    "lng": -9.171235,
+    "tipo": "PONTO",
+    "categoria": "ANIMAL"
+  },
+  {
+    "nome": "Gorila-ocidental",
+    "lat": 38.7447392,
+    "lng": -9.1712232,
+    "tipo": "PONTO",
+    "categoria": "ANIMAL"
+  },
+  {
+    "nome": "Pumas",
+    "lat": 38.744963,
+    "lng": -9.1706668,
+    "tipo": "PONTO",
+    "categoria": "ANIMAL"
+  },
+  {
+    "nome": "Serval",
+    "lat": 38.7450389,
+    "lng": -9.1710972,
+    "tipo": "PONTO",
+    "categoria": "ANIMAL"
+  },
+  {
+    "nome": "Leopardo-da-pérsia",
+    "lat": 38.7451831,
+    "lng": -9.1709506,
+    "tipo": "PONTO",
+    "categoria": "ANIMAL"
+  },
+  {
+    "nome": "Leopardo-das-neves",
+    "lat": 38.7452328,
+    "lng": -9.1712997,
+    "tipo": "PONTO",
+    "categoria": "ANIMAL"
+  },
+  {
+    "nome": "Lince-euro-asiático",
+    "lat": 38.7453273,
+    "lng": -9.1711546,
+    "tipo": "PONTO",
+    "categoria": "ANIMAL"
+  },
+  {
+    "nome": "Babuíno-hamadrias",
+    "lat": 38.7453845,
+    "lng": -9.1705393,
+    "tipo": "PONTO",
+    "categoria": "ANIMAL"
+  },
+  {
+    "nome": "Adaxes",
+    "lat": 38.7455325,
+    "lng": -9.1707593,
+    "tipo": "PONTO",
+    "categoria": "ANIMAL"
+  },
+  {
+    "nome": "Órix-de-cimitarra",
+    "lat": 38.7455176,
+    "lng": -9.1720346,
+    "tipo": "PONTO",
+    "categoria": "ANIMAL"
+  },
+  {
+    "nome": "Palanca-ruana",
+    "lat": 38.7457426,
+    "lng": -9.1719899,
+    "tipo": "PONTO",
+    "categoria": "ANIMAL"
+  },
+  {
+    "nome": "Palanca-negra",
+    "lat": 38.7457028,
+    "lng": -9.1725845,
+    "tipo": "PONTO",
+    "categoria": "ANIMAL"
+  },
+  {
+    "nome": "Chitas",
+    "lat": 38.7454653,
+    "lng": -9.1727152,
+    "tipo": "PONTO",
+    "categoria": "ANIMAL"
+  },
+  {
+    "nome": "Okapis",
+    "lat": 38.7453186,
+    "lng": -9.1734342,
+    "tipo": "PONTO",
+    "categoria": "ANIMAL"
+  },
+  {
+    "nome": "Reptilário",
+    "lat": 38.743255,
+    "lng": -9.172581,
+    "tipo": "AREA",
+    "categoria": "ANIMAL"
+  },
+  {
+    "nome": "Templo dos Primatas",
+    "lat": 38.744672,
+    "lng": -9.171407,
+    "tipo": "AREA",
+    "categoria": "ANIMAL"
+  },
+  {
+    "nome": "Baía dos Golfinhos",
+    "lat": 38.742597,
+    "lng": -9.170947,
+    "tipo": "AREA",
+    "categoria": "ANIMAL"
+  },
+  {
+    "nome": "Teleférico",
+    "lat": 38.744130,
+    "lng": -9.170596,
+    "tipo": "AREA",
+    "categoria": "TRANSPORTE"
+  },
+  {
+    "nome": "Entrada/Bilheteira",
+    "lat": 38.742914,
+    "lng": -9.170377,
+    "tipo": "AREA",
+    "categoria": "SERVICO"
+  },
+  {
+    "nome": "Ursos-pardos",
+    "lat": 38.746050,
+    "lng": -9.170526,
+    "tipo": "AREA",
+    "categoria": "ANIMAL"
+  },
+  {
+    "nome": "Pelicanos",
+    "lat": 38.744455,
+    "lng": -9.170010,
+    "tipo": "AREA",
+    "categoria": "ANIMAL"
+  },
+  {
+    "nome": "Encosta dos Felinos",
+    "lat": 38.745222,
+    "lng": -9.171105,
+    "tipo": "AREA",
+    "categoria": "ANIMAL"
+  },
+  {
+    "nome": "Aldeia dos Macacos",
+    "lat": 38.743963,
+    "lng": -9.171033,
+    "tipo": "AREA",
+    "categoria": "ANIMAL"
+  },
+  {
+    "nome": "Palácio das Araras",
+    "lat": 38.743691,
+    "lng": -9.171244,
+    "tipo": "AREA",
+    "categoria": "ANIMAL"
+  },
+  {
+    "nome": "Leões-marinhos",
+    "lat": 38.744100,
+    "lng": -9.171427,
+    "tipo": "AREA",
+    "categoria": "ANIMAL"
+  },
+  {
+    "nome": "Pinguins-do-cabo",
+    "lat": 38.744220,
+    "lng": -9.171265,
+    "tipo": "AREA",
+    "categoria": "ANIMAL"
+  },
+  {
+    "nome": "Aves Exóticas",
+    "lat": 38.743777,
+    "lng": -9.171306,
+    "tipo": "AREA",
+    "categoria": "ANIMAL"
+  },
+  {
+    "nome": "Aviário Asiático",
+    "lat": 38.742973,
+    "lng": -9.171377,
+    "tipo": "AREA",
+    "categoria": "ANIMAL"
+  },
+  {
+    "nome": "Parque Arco-Íris",
+    "lat": 38.742605,
+    "lng": -9.172331,
+    "tipo": "AREA",
+    "categoria": "ANIMAL"
+  },
+  {
+    "nome": "Lince-ibérico",
+    "lat": 38.7460401,
+    "lng": -9.1709958,
+    "tipo": "PONTO",
+    "categoria": "ANIMAL"
+  },
+  {
+    "nome": "Restaurante Coral",
+    "lat": 38.7421129,
+    "lng": -9.1722881,
+    "tipo": "PONTO",
+    "categoria": "COMIDA"
+  },
+  {
+    "nome": "ZOOvenir (Loja)",
+    "lat": 38.743413,
+    "lng": -9.169527,
+    "tipo": "AREA",
+    "categoria": "SERVICO"
+  },
+  {
+    "nome": "Cafetaria Orquídea",
+    "lat": 38.7452398,
+    "lng": -9.1690847,
+    "tipo": "PONTO",
+    "categoria": "COMIDA"
+  },
+  {
+    "nome": "Farmácia Sete Rios",
+    "lat": 38.7453217,
+    "lng": -9.1691272,
+    "tipo": "PONTO",
+    "categoria": "CIDADE"
+  },
+  {
+    "nome": "Farmácia Alegria",
+    "lat": 38.743115,
+    "lng": -9.1738965,
+    "tipo": "PONTO",
+    "categoria": "CIDADE"
+  },
+  {
+    "nome": "Talho Ferdinando",
+    "lat": 38.743779,
+    "lng": -9.1739238,
+    "tipo": "PONTO",
+    "categoria": "CIDADE"
+  },
+  {
+    "nome": "O Churrasco (Restaurante)",
+    "lat": 38.7461241,
+    "lng": -9.1695217,
+    "tipo": "PONTO",
+    "categoria": "CIDADE"
+  },
+  {
+    "nome": "Big Kebab House",
+    "lat": 38.7470128,
+    "lng": -9.1679048,
+    "tipo": "PONTO",
+    "categoria": "CIDADE"
+  },
+  {
+    "nome": "Sabor das Laranjeiras",
+    "lat": 38.7486186,
+    "lng": -9.1718731,
+    "tipo": "PONTO",
+    "categoria": "CIDADE"
+  },
+  {
+    "nome": "Estrada de Benfica",
+    "lat": 38.742575,
+    "lng": -9.1726282,
+    "tipo": "PONTO",
+    "categoria": "CIDADE"
+  },
+  {
+    "nome": "Alto dos Moinhos (Metro)",
+    "lat": 38.7498954,
+    "lng": -9.1797946,
+    "tipo": "PONTO",
+    "categoria": "TRANSPORTE"
+  },
+  {
+    "nome": "Hospital da Cruz Vermelha",
+    "lat": 38.745889,
+    "lng": -9.175394,
+    "tipo": "AREA",
+    "categoria": "CIDADE"
+  },
+  {
+    "nome": "Hospital dos Lusíadas",
+    "lat": 38.749171,
+    "lng": -9.178159,
+    "tipo": "AREA",
+    "categoria": "CIDADE"
+  },
+  {
+    "nome": "Loja do Cidadão",
+    "lat": 38.7496467,
+    "lng": -9.1724903,
+    "tipo": "PONTO",
+    "categoria": "CIDADE"
+  }
+]

@@ -1,232 +1,183 @@
-from queue import PriorityQueue
+import os
+
+import osmnx as ox
+import heapq
 import math
-import psycopg2
-from psycopg2 import sql
+import json
+import sys
 
-# Configuração da conexão à base de dados
-DB_CONFIG = {
-    'host': 'localhost',
-    'port': 5434,  # ou 5432 se conectares diretamente ao primary
-    'database': 'postgres',
-    'user': 'postgres',
-    'password': 'ThZ3d1112'
-}
+# Variável Global para o Grafo
+G = None
 
-def get_person_position():
-    """Busca a posição da pessoa da base de dados"""
-    try:
-        conn = psycopg2.connect(**DB_CONFIG)
-        cursor = conn.cursor()
 
-        # Buscar a primeira pessoa (ou podes modificar para buscar por ID)
-        cursor.execute("""
-                       SELECT per_id, per_name
-                       FROM zoopolis.person
-                       ORDER BY per_id
-                           LIMIT 1
-                       """)
-        person = cursor.fetchone()
+def carregar_mapa():
+    """Lê o arquivo XML do OpenStreetMap."""
+    global G
+    if G is None:
+        try:
+            # 1. Descobre onde este script (a_star.py) está guardado no disco
+            diretorio_do_script = os.path.dirname(os.path.abspath(__file__))
 
-        if person:
-            print(f"Pessoa encontrada: {person[1]} (ID: {person[0]})")
-            # Por enquanto, retornamos posição fixa [0,0]
-            # Mais tarde podes adicionar coordenadas reais na tabela person
-            return [0, 0]
-        else:
-            print("Nenhuma pessoa encontrada na base de dados")
-            return [0, 0]
+            # 2. Cria o caminho completo para o zoo.osm (ex: /app/python/zoo.osm)
+            caminho_mapa = os.path.join(diretorio_do_script, "Zoo.osm")
 
-    except Exception as e:
-        print(f"Erro ao buscar pessoa: {e}")
-        return [0, 0]
-    finally:
-        if conn:
-            conn.close()
+            # simplify=False é vital para manter a precisão das curvas
+            G = ox.graph_from_xml(caminho_mapa, simplify=False)
 
-def list_all_enclosures():
-    """Lista todas as enclosures disponíveis"""
-    try:
-        conn = psycopg2.connect(**DB_CONFIG)
-        cursor = conn.cursor()
+            # Converte o mapa para "não-direcionado" (Pedestres andam nos 2 sentidos)
+            G = G.to_undirected()
 
-        cursor.execute("""
-                       SELECT enc_id, enc_name, enc_lat, enc_long
-                       FROM zoopolis.enclosure
-                       ORDER BY enc_id
-                       """)
+            # print("Mapa carregado...", file=sys.stderr)
 
-        enclosures = cursor.fetchall()
+        except FileNotFoundError:
+            print(json.dumps({"status": "erro", "mensagem": " O arquivo zoo.osm não foi encontrado"}))
+            sys.exit(1)
+    return G
 
-        print("\n📋 Enclosures disponíveis:")
-        for enc in enclosures:
-            enc_id, enc_name, enc_lat, enc_long = enc
-            print(f"   {enc_id}. {enc_name}")
 
-        return enclosures
+#1. Heuristica
+def haversine(lat1, lon1, lat2, lon2):
 
-    except Exception as e:
-        print(f"Erro ao listar enclosures: {e}")
-        return []
-    finally:
-        if conn:
-            conn.close()
+    R = 6371000
+    phi1 = math.radians(lat1)
+    phi2 = math.radians(lat2)
+    delta_phi = math.radians(lat2 - lat1)
+    delta_lambda = math.radians(lon2 - lon1)
 
-def select_enclosure_interactive():
-    """Deixa o utilizador escolher uma enclosure"""
-    enclosures = list_all_enclosures()
+    a = math.sin(delta_phi / 2) ** 2 + \
+        math.cos(phi1) * math.cos(phi2) * \
+        math.sin(delta_lambda / 2) ** 2
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+    return R * c
 
-    if not enclosures:
-        return None
 
-    try:
-        choice = int(input("\n🎯 Seleciona o ID da enclosure: "))
+#2. Algoritmo A*
+def a_star_manual(grafo, start_node, goal_node):
+    """Calcula o caminho entre DOIS pontos específicos."""
+    open_set = []
+    heapq.heappush(open_set, (0, start_node))
+    came_from = {}
 
-        # Encontrar a enclosure escolhida
-        for enc in enclosures:
-            if enc[0] == choice:
-                enc_id, enc_name, enc_lat, enc_long = enc
-                x = (enc_id * 3) % 15
-                y = (enc_id * 7) % 15
-                position = [x, y]
-                print(f"✅ Selecionado: {enc_name} -> Posição: [{x}, {y}]")
-                return position
+    g_score = {node: float('inf') for node in grafo.nodes}
+    g_score[start_node] = 0
 
-        print("❌ ID não encontrado")
-        return None
+    f_score = {node: float('inf') for node in grafo.nodes}
 
-    except ValueError:
-        print("❌ Por favor insere um número válido")
-        return None
+    # Dados do destino para a heurística
+    goal_data = grafo.nodes[goal_node]
+    goal_lat = goal_data['y']
+    goal_lon = goal_data['x']
 
-def get_visited_positions(person_id):
-    """Busca posições já visitadas pela pessoa"""
-    try:
-        conn = psycopg2.connect(**DB_CONFIG)
-        cursor = conn.cursor()
+    f_score[start_node] = haversine(grafo.nodes[start_node]['y'], grafo.nodes[start_node]['x'], goal_lat, goal_lon)
 
-        cursor.execute("""
-                       SELECT DISTINCT sa.sa_id, sa.sa_name
-                       FROM zoopolis.visited v
-                                JOIN zoopolis.sub_area sa ON v.vi_sa_id = sa.sa_id
-                       WHERE v.vi_per_id = %s
-                       """, (person_id,))
+    while open_set:
+        current_f, current = heapq.heappop(open_set)
 
-        visited = cursor.fetchall()
-        positions = []
-
-        for area in visited:
-            # Mapear áreas visitadas para posições no grid
-            # Por enquanto, posições aleatórias - podes ajustar
-            sa_id, sa_name = area
-            x = sa_id % 10
-            y = (sa_id * 2) % 10
-            positions.append([x, y])
-            print(f"Área visitada: {sa_name} -> Posição: [{x}, {y}]")
-
-        return positions
-
-    except Exception as e:
-        print(f"Erro ao buscar áreas visitadas: {e}")
-        return []
-    finally:
-        if conn:
-            conn.close()
-
-def update_score(person_id, new_score):
-    """Atualiza a pontuação da pessoa na base de dados"""
-    try:
-        conn = psycopg2.connect(**DB_CONFIG)
-        cursor = conn.cursor()
-
-        cursor.execute("""
-                       UPDATE zoopolis.person
-                       SET per_points = per_points + %s
-                       WHERE per_id = %s
-                       """, (new_score, person_id))
-
-        conn.commit()
-        print(f"Pontuação atualizada: +{new_score} pontos para a pessoa ID {person_id}")
-
-    except Exception as e:
-        print(f"Erro ao atualizar pontuação: {e}")
-        conn.rollback()
-    finally:
-        if conn:
-            conn.close()
-
-def a_star(start, goals):
-    """Algoritmo A* para um ou mais goals"""
-    pq = PriorityQueue()
-    pq.put((0, tuple(start)))
-    came_from = {tuple(start): None}
-    cost_so_far = {tuple(start): 0}
-
-    while not pq.empty():
-        current_cost, current_pos = pq.get()
-
-        # Verificar se chegou a algum goal
-        if list(current_pos) in goals:
-            # Reconstruir caminho
+        if current == goal_node:
             path = []
-            while current_pos is not None:
-                path.append(current_pos)
-                current_pos = came_from[current_pos]
-            return path[::-1]
+            while current in came_from:
+                path.append(current)
+                current = came_from[current]
+            path.append(start_node)
+            return path[::-1]  # Retorna Inicio -> Fim
 
-        # Gerar vizinhos
-        x, y = current_pos
-        neighbors = [(x+1, y), (x-1, y), (x, y+1), (x, y-1)]
+        for neighbor in grafo.neighbors(current):
+            edge_data = grafo.get_edge_data(current, neighbor)[0]
+            weight = float(edge_data.get('length', 1.0))
 
-        for neighbor in neighbors:
-            new_cost = cost_so_far[current_pos] + 1
-            if neighbor not in cost_so_far or new_cost < cost_so_far[neighbor]:
-                cost_so_far[neighbor] = new_cost
-                # Heurística: distância para o goal mais próximo
-                min_heuristic = min([abs(neighbor[0]-g[0]) + abs(neighbor[1]-g[1]) for g in goals])
-                priority = new_cost + min_heuristic
-                pq.put((priority, neighbor))
-                came_from[neighbor] = current_pos
+            tentative_g_score = g_score[current] + weight
 
-    return []  # Sem caminho encontrado
+            if tentative_g_score < g_score[neighbor]:
+                came_from[neighbor] = current
+                g_score[neighbor] = tentative_g_score
 
-def main():
-    """Função principal do programa"""
-    print("🚀 Sistema de Pathfinding para Zoológico")
+                neighbor_lat = grafo.nodes[neighbor]['y']
+                neighbor_lon = grafo.nodes[neighbor]['x']
+                h_score = haversine(neighbor_lat, neighbor_lon, goal_lat, goal_lon)
 
-    # Buscar dados da base de dados
-    print("\n=== Buscando dados da Base de Dados ===")
-    person_position = get_person_position()
+                f_score[neighbor] = g_score[neighbor] + h_score
+                heapq.heappush(open_set, (f_score[neighbor], neighbor))
 
-    # Selecionar enclosure específica
-    enclosure_alvo = select_enclosure_interactive()
+    return []  # Falha
 
-    if not enclosure_alvo:
-        print("❌ Nenhuma enclosure selecionada. A terminar...")
-        return
 
-    # Usar apenas a enclosure selecionada
-    enclosures_positions = [enclosure_alvo]
-    visited_positions = get_visited_positions(1)  # Assumindo pessoa com ID 1
+# --- 3. PROCESSAMENTO ---
 
-    print(f"\n📍 Posição inicial da pessoa: {person_position}")
-    print(f"🎯 Enclosure alvo: {enclosure_alvo}")
-    print(f"📌 Posições já visitadas: {visited_positions}")
+def processar_rota_multipla(json_input):
+    try:
+        dados = json.loads(json_input)
 
-    # Executar o algoritmo A*
-    print("\n=== Executando Algoritmo A* ===")
-    score = 10  # Pontuação por alcançar o alvo
-    path = a_star(person_position, enclosures_positions)
+        # O JSON recebe uma lista de pontos ordenados
+        # Ex: [Origem, PontoA, PontoB, PontoC, Destino]
+        stops = dados['paragens']
 
-    print("Caminho encontrado:", path)
-    print("Score final:", score)
-    print(f"📏 Distância: {len(path) - 1 if path else 0} passos")
+        if len(stops) < 2:
+            return json.dumps({"status": "erro", "mensagem": "Preciso de pelo menos 2 pontos (Origem e Destino)"})
 
-    # Atualizar pontuação na base de dados
-    if path:  # Só atualizar se encontrou caminho
-        update_score(1, score)  # Assumindo pessoa com ID 1
-    else:
-        print("⚠️  Nenhum caminho encontrado - pontuação não atualizada")
+        grafo = carregar_mapa()
+        rota_total_coords = []
 
-# Executar o programa
+        # Loop que percorre os pontos par a par
+        # Se temos [A, B, C], ele faz: (A->B) e depois (B->C)
+        for i in range(len(stops) - 1):
+
+            # Pegar coordenadas do ponto atual e do próximo
+            ponto_atual = stops[i]
+            ponto_proximo = stops[i + 1]
+
+            lat_start = float(ponto_atual['lat'])
+            lon_start = float(ponto_atual['lng'])
+            lat_goal = float(ponto_proximo['lat'])
+            lon_goal = float(ponto_proximo['lng'])
+
+            # Converter GPS -> Nós
+            start_node = ox.distance.nearest_nodes(grafo, X=lon_start, Y=lat_start)
+            goal_node = ox.distance.nearest_nodes(grafo, X=lon_goal, Y=lat_goal)
+
+            # Calcular o segmento usando A*
+            segmento_nodes = a_star_manual(grafo, start_node, goal_node)
+
+            if not segmento_nodes:
+                return json.dumps({
+                    "status": "erro",
+                    "mensagem": f"Não há caminho entre o ponto {i} e {i + 1}"
+                })
+
+            # Converter nós do segmento para coordenadas
+            for index, node in enumerate(segmento_nodes):
+                # Evitar duplicar o ponto de conexão (o fim de A é o início de B)
+                # Só adicionamos se for o primeiro segmento OU se não for o primeiro nó deste segmento
+                if i == 0 or index > 0:
+                    point = grafo.nodes[node]
+                    rota_total_coords.append({
+                        'lat': point['y'],
+                        'lng': point['x']
+                    })
+
+        return json.dumps({
+            "status": "sucesso",
+            "pontos": len(rota_total_coords),
+            "rota": rota_total_coords
+        })
+
+    except Exception as e:
+        return json.dumps({"status": "erro", "mensagem": str(e)})
+
+
 if __name__ == "__main__":
-    main()
+    #1: Chamado pelo Java (tem argumentos)
+    if len(sys.argv) > 1:
+        json_entrada = sys.argv[1]
+        print(processar_rota_multipla(json_entrada))
+
+    #2: Teste manual(sem argumentos)
+    else:
+        exemplo_json = """
+        {
+            "paragens": [
+                {"lat": 38.741800, "lng": -9.168700}, 
+                {"lat": 38.745512, "lng": -9.173001}
+            ]
+        }
+        """
+        print(processar_rota_multipla(exemplo_json))

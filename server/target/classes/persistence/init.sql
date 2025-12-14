@@ -1,0 +1,390 @@
+-- ==================================================================================
+-- 1. RESET TOTAL
+-- ==================================================================================
+DROP SCHEMA IF EXISTS zoopolis CASCADE;
+CREATE SCHEMA zoopolis AUTHORIZATION postgres;
+SET search_path TO zoopolis;
+
+-- ==================================================================================
+-- 2. CRIAÇÃO DAS TABELAS
+-- ==================================================================================
+
+CREATE TABLE class (
+                       cla_id SERIAL PRIMARY KEY,
+                       cla_name VARCHAR(60) NOT NULL,
+                       cla_order VARCHAR(60),
+                       cla_fam VARCHAR(60)
+);
+
+CREATE TABLE area (
+                      area_id SERIAL PRIMARY KEY,
+                      area_name VARCHAR(60)
+);
+
+CREATE TABLE sub_area (
+                          sa_id SERIAL PRIMARY KEY,
+                          sa_area_id INT REFERENCES area(area_id),
+                          sa_name VARCHAR(60)
+);
+
+CREATE TABLE enclosure (
+                           enc_id SERIAL PRIMARY KEY,
+                           enc_name VARCHAR(60) NOT NULL,
+                           enc_sup_amount INT,
+                           enc_aniclass VARCHAR(30),
+                           enc_lat DOUBLE PRECISION NOT NULL,
+                           enc_long DOUBLE PRECISION NOT NULL,
+                           enc_sa_id INT REFERENCES sub_area(sa_id)
+);
+
+CREATE TABLE animal (
+                        ani_id SERIAL PRIMARY KEY,
+                        ani_name VARCHAR(60) NOT NULL,
+                        ani_ci_name VARCHAR(60),
+                        ani_description TEXT,
+                        ani_weight FLOAT,
+                        ani_height FLOAT,
+                        ani_length FLOAT,
+                        ani_cla_id INT REFERENCES class(cla_id),
+                        imageurl TEXT -- MUDANÇA: Mudado para TEXT para aceitar URLs longos
+);
+
+CREATE TABLE ae (
+                    ae_id SERIAL PRIMARY KEY,
+                    ae_ani_id INT REFERENCES animal(ani_id),
+                    ae_enc_id INT REFERENCES enclosure(enc_id),
+                    ae_dt_in TIMESTAMP,
+                    ae_dt_out TIMESTAMP,
+                    ae_code VARCHAR(30)
+);
+
+CREATE TABLE person (
+                        per_id SERIAL PRIMARY KEY,
+                        per_name VARCHAR(60) NOT NULL,
+                        per_email VARCHAR(60) UNIQUE,
+                        per_password VARCHAR(255) NOT NULL,
+                        per_gender VARCHAR(20),
+                        per_points INT NOT NULL DEFAULT 0
+);
+
+CREATE TABLE activity (
+                          ac_id SERIAL PRIMARY KEY,
+                          ac_name VARCHAR(60),
+                          ac_schedule TIMESTAMP,
+                          ac_cap INT,
+                          ac_area_id INT REFERENCES area(area_id)
+);
+
+CREATE TABLE kiosk (
+                       kio_id SERIAL PRIMARY KEY,
+                       kio_name VARCHAR(60),
+                       kio_area_id INT REFERENCES area(area_id)
+);
+
+CREATE TABLE product (
+                         pro_id SERIAL PRIMARY KEY,
+                         pro_name VARCHAR(100),
+                         pro_barcode BIGINT,
+                         pro_price DOUBLE PRECISION
+);
+
+CREATE TABLE stock (
+                       stock_id SERIAL PRIMARY KEY,
+                       stock_amount INT,
+                       stock_kio_id INT REFERENCES kiosk(kio_id),
+                       stock_pro_id INT REFERENCES product(pro_id)
+);
+
+CREATE TABLE visited (
+                         vi_id SERIAL PRIMARY KEY,
+                         vi_per_id INT REFERENCES person(per_id),
+                         vi_sa_id INT REFERENCES sub_area(sa_id),
+                         vi_dtime TIMESTAMP NOT NULL
+);
+
+CREATE TABLE favorite (
+                          fav_id SERIAL PRIMARY KEY,
+                          fav_animal VARCHAR(10),
+                          fav_ani_id INT REFERENCES animal(ani_id),
+                          fav_per_id INT REFERENCES person(per_id)
+);
+
+
+-- ==================================================================================
+-- 3. DADOS BÁSICOS
+-- ==================================================================================
+
+INSERT INTO class (cla_name, cla_order, cla_fam) VALUES
+                                                     ('Mamíferos', 'Mammalia', 'Vários'),
+                                                     ('Aves', 'Aves', 'Vários'),
+                                                     ('Répteis', 'Reptilia', 'Vários'),
+                                                     ('Anfíbios', 'Amphibia', 'Vários'),
+                                                     ('Serviços', 'Urbano', 'Serviço'),
+                                                     ('Transporte', 'Urbano', 'Transporte'),
+                                                     ('Comida', 'Urbano', 'Restauração'),
+                                                     ('Cidade', 'Urbano', 'Geral'),
+                                                     ('Saúde', 'Urbano', 'Hospital');
+
+INSERT INTO area (area_name) VALUES ('Zoo Lisboa'), ('Cidade Envolvente');
+INSERT INTO sub_area (sa_area_id, sa_name) VALUES (1, 'Interior do Zoo'), (2, 'Exterior / Sete Rios');
+
+
+-- ==================================================================================
+-- 4. LOCAIS DO MAPA (ENCLOSURES)
+-- ==================================================================================
+
+INSERT INTO enclosure (enc_name, enc_lat, enc_long, enc_sa_id, enc_sup_amount, enc_aniclass) VALUES
+-- TRANSPORTES & CIDADE
+('Laranjeiras (Metro)', 38.7475369, -9.170902, 2, 0, 'TRANSPORTE'),
+('Praça de Espanha', 38.737684, -9.1592473, 2, 0, 'CIDADE'),
+('Alto dos Moinhos', 38.7498954, -9.1797946, 2, 0, 'TRANSPORTE'),
+('Sete Rios (Estação)', 38.7419616, -9.167221, 2, 0, 'TRANSPORTE'),
+('Sete Rios - Zoo', 38.7424765, -9.1674358, 2, 0, 'TRANSPORTE'),
+('Estrada de Benfica (Furnas)', 38.742575, -9.1726282, 2, 0, 'CIDADE'),
+('Estrada das Laranjeiras', 38.7453615, -9.1693658, 2, 0, 'CIDADE'),
+('Loja do Cidadão', 38.7496467, -9.1724903, 2, 0, 'SERVICO'),
+('Hospital dos Lusíadas', 38.749171, -9.178159, 2, 0, 'CIDADE'),
+('Hospital da Cruz Vermelha', 38.745889, -9.175394, 2, 0, 'CIDADE'),
+
+-- SERVIÇOS & COMIDA
+('Jardim Zoológico (Entrada)', 38.7420882, -9.1689132, 1, 0, 'SERVICO'),
+('Saída', 38.743849, -9.1696622, 1, 0, 'SERVICO'),
+('Carrossel', 38.7434484, -9.1683219, 1, 0, 'SERVICO'),
+('ZOOvenir', 38.743413, -9.169527, 1, 0, 'SERVICO'),
+('McDonald''s', 38.7434275, -9.1699526, 1, 0, 'COMIDA'),
+('Comboio do Zoo', 38.7432354, -9.1707117, 1, 0, 'TRANSPORTE'),
+('Teleférico', 38.744130, -9.170596, 1, 0, 'TRANSPORTE'),
+('Snack-Bar Africa', 38.7447463, -9.1704399, 1, 0, 'COMIDA'),
+('Bar Zoo', 38.7429171, -9.1721373, 1, 0, 'COMIDA'),
+('Cafetaria Orquídea', 38.7452398, -9.1690847, 2, 0, 'COMIDA'),
+('Solar dos Canadianos', 38.7436821, -9.1743438, 2, 0, 'COMIDA'),
+('Restaurante Coral', 38.7421129, -9.1722881, 2, 0, 'COMIDA'),
+('Farmácia Sete Rios', 38.7453217, -9.1691272, 2, 0, 'SERVICO'),
+('Farmácia Alegria', 38.743115, -9.1738965, 2, 0, 'SERVICO'),
+('O Churrasco', 38.7461241, -9.1695217, 2, 0, 'COMIDA'),
+('Talho Ferdinando', 38.743779, -9.1739238, 2, 0, 'COMIDA'),
+('Big Kebab House', 38.7470128, -9.1679048, 2, 0, 'COMIDA'),
+
+-- ANIMAIS (Destinos)
+('Vale dos Tigres', 38.7432704, -9.1711608, 1, 5, 'ANIMAL'),
+('Tigres Brancos', 38.744536, -9.1706392, 1, 3, 'ANIMAL'),
+('Rinocerontes Brancos', 38.7443442, -9.1703226, 1, 4, 'ANIMAL'),
+('Pequenos Primatas', 38.7441465, -9.1707578, 1, 10, 'ANIMAL'),
+('Ilha dos Macacos', 38.7438071, -9.1704214, 1, 15, 'ANIMAL'),
+('Áxis e Veado', 38.742928, -9.1715755, 1, 8, 'ANIMAL'),
+('Bongos', 38.7428199, -9.1717875, 1, 4, 'ANIMAL'),
+('Koalas e Cangurus', 38.7432588, -9.1718274, 1, 6, 'ANIMAL'),
+('Bisonte-americano', 38.742841, -9.1724858, 1, 5, 'ANIMAL'),
+('Búfalos', 38.7429355, -9.1726818, 1, 6, 'ANIMAL'),
+('Tartaruga-gigante', 38.742979, -9.172862, 1, 3, 'ANIMAL'),
+('Aligátor-americano', 38.7431357, -9.1724443, 1, 4, 'ANIMAL'),
+('Rinocerontes-indianos', 38.7433744, -9.172159, 1, 2, 'ANIMAL'),
+('Suricatas', 38.7435261, -9.1724172, 1, 12, 'ANIMAL'),
+('Girafas', 38.744016, -9.1725065, 1, 5, 'ANIMAL'),
+('Órix-austral', 38.7437922, -9.1720426, 1, 5, 'ANIMAL'),
+('Elandes', 38.7438506, -9.1715994, 1, 6, 'ANIMAL'),
+('Panda-vermelho', 38.7442037, -9.1720043, 1, 2, 'ANIMAL'),
+('Hipopótamos', 38.7442932, -9.1723487, 1, 3, 'ANIMAL'),
+('Lémures', 38.744425, -9.1725352, 1, 10, 'ANIMAL'),
+('Ilha dos Lémures', 38.7444312, -9.172151, 1, 10, 'ANIMAL'),
+('Elefantes-africanos', 38.7447806, -9.1729194, 1, 3, 'ANIMAL'),
+('Leões', 38.7450277, -9.1724427, 1, 4, 'ANIMAL'),
+('Flamingo-rubro', 38.7447194, -9.1724379, 1, 30, 'ANIMAL'),
+('Chimpanzé', 38.7447904, -9.171235, 1, 6, 'ANIMAL'),
+('Gorilas', 38.7447392, -9.1712232, 1, 4, 'ANIMAL'),
+('Pumas', 38.744963, -9.1706668, 1, 2, 'ANIMAL'),
+('Serval', 38.7450389, -9.1710972, 1, 2, 'ANIMAL'),
+('Leopardo-da-pérsia', 38.7451831, -9.1709506, 1, 2, 'ANIMAL'),
+('Leopardo-das-neves', 38.7452328, -9.1712997, 1, 2, 'ANIMAL'),
+('Lince-euro-asiático', 38.7453273, -9.1711546, 1, 2, 'ANIMAL'),
+('Babuíno-hamadrias', 38.7453845, -9.1705393, 1, 8, 'ANIMAL'),
+('Adaxes', 38.7455325, -9.1707593, 1, 6, 'ANIMAL'),
+('Chitas', 38.7454653, -9.1727152, 1, 2, 'ANIMAL'),
+('Okapis', 38.7453186, -9.1734342, 1, 2, 'ANIMAL'),
+('Reptilário', 38.743255, -9.172581, 1, 40, 'ANIMAL'),
+('Templo dos Primatas', 38.744672, -9.171407, 1, 20, 'ANIMAL'),
+('Baía dos Golfinhos', 38.742597, -9.170947, 1, 4, 'ANIMAL'),
+('Ursos-pardos', 38.746050, -9.170526, 1, 2, 'ANIMAL'),
+('Pelicanos', 38.744455, -9.170010, 1, 10, 'ANIMAL'),
+('Encosta dos Felinos', 38.745222, -9.171105, 1, 8, 'ANIMAL'),
+('Aldeia dos Macacos', 38.743963, -9.171033, 1, 15, 'ANIMAL'),
+('Palácio das Araras', 38.743691, -9.171244, 1, 10, 'ANIMAL'),
+('Leões-marinhos', 38.744100, -9.171427, 1, 5, 'ANIMAL'),
+('Pinguins-do-cabo', 38.744220, -9.171265, 1, 20, 'ANIMAL'),
+('Aves Exóticas', 38.743777, -9.171306, 1, 15, 'ANIMAL'),
+('Aviário Asiático', 38.742973, -9.171377, 1, 10, 'ANIMAL'),
+('Parque Arco-Íris', 38.742605, -9.172331, 1, 10, 'ANIMAL'),
+('Lince-ibérico', 38.7460401, -9.1709958, 1, 2, 'ANIMAL'),
+('Muntjac-chinês', 38.7440669, -9.1721574, 1, 4, 'ANIMAL'),
+('Palanca-ruana', 38.7457426, -9.1719899, 1, 5, 'ANIMAL'),
+('Palanca-negra', 38.7457028, -9.1725845, 1, 5, 'ANIMAL'),
+('Colobo-guereza', 38.7447392, -9.1712232, 1, 6, 'ANIMAL');
+
+
+-- ==================================================================================
+-- 5. ANIMAIS (COM URLS DA INTERNET e DESCRIÇÕES TOP)
+-- ==================================================================================
+
+INSERT INTO animal (ani_name, ani_ci_name, ani_description, ani_weight, ani_height, ani_length, ani_cla_id, imageurl) VALUES
+
+                                                                                                                          ('Tigre da Sibéria', 'Panthera tigris altaica', 'O maior felino do mundo. Possui uma pelagem laranja com riscas pretas e adapta-se bem a climas frios. Encontra-se no Vale dos Tigres.', 300, 110, 330, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/23/Siberian_Tiger_sf.jpg/640px-Siberian_Tiger_sf.jpg'),
+
+                                                                                                                          ('Tigre Branco', 'Panthera tigris', 'Uma variação rara de cor do tigre de Bengala, causada por um gene recessivo. Possui olhos azuis e nariz rosado. Não é albino.', 220, 100, 300, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/White_Tiger_6_%28cropped%29.jpg/640px-White_Tiger_6_%28cropped%29.jpg'),
+
+                                                                                                                          ('Leão Africano', 'Panthera leo', 'Conhecido como o rei da selva. Os machos distinguem-se pela sua juba imponente. Vivem em bandos sociais complexos liderados por fêmeas.', 190, 120, 250, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/73/Lion_waiting_in_Namibia.jpg/640px-Lion_waiting_in_Namibia.jpg'),
+
+                                                                                                                          ('Golfinho Roaz', 'Tursiops truncatus', 'Mamífero marinho extremamente inteligente e social. Usa ecolocalização para caçar e comunicar. Estrela da Baía dos Golfinhos.', 300, 0, 400, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Tursiops_truncatus_01.jpg/640px-Tursiops_truncatus_01.jpg'),
+
+                                                                                                                          ('Elefante Africano', 'Loxodonta africana', 'O maior mamífero terrestre do planeta. As suas grandes orelhas ajudam a regular a temperatura corporal e as presas são de marfim.', 6000, 330, 700, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bf/African_Elephant_%28Loxodonta_africana%29_male_%2817289351312%29.jpg/640px-African_Elephant_%28Loxodonta_africana%29_male_%2817289351312%29.jpg'),
+
+                                                                                                                          ('Girafa', 'Giraffa camelopardalis', 'O animal mais alto do mundo. Dorme apenas cerca de 30 minutos por dia. A sua língua azul e preênsil pode medir até 50cm.', 1200, 550, 0, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/Giraffe_standing.jpg/640px-Giraffe_standing.jpg'),
+
+                                                                                                                          ('Chimpanzé', 'Pan troglodytes', 'O nosso parente vivo mais próximo, partilhando 98% do ADN. Usa ferramentas como pedras e paus para obter alimento.', 60, 120, 0, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/62/Schimpanse_Zoo_Leipzig.jpg/640px-Schimpanse_Zoo_Leipzig.jpg'),
+
+                                                                                                                          ('Gorila', 'Gorilla gorilla', 'O maior primata existente. Apesar da sua força colossal, é um gigante gentil e vegetariano que vive em grupos familiares.', 180, 170, 0, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bb/Gorilla_Lorraine_02.jpg/640px-Gorilla_Lorraine_02.jpg'),
+
+                                                                                                                          ('Koala', 'Phascolarctos cinereus', 'Marsupial australiano que passa a maior parte do dia a dormir para digerir as folhas tóxicas de eucalipto.', 12, 70, 0, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/49/Koala_climbing_tree.jpg/640px-Koala_climbing_tree.jpg'),
+
+                                                                                                                          ('Panda Vermelho', 'Ailurus fulgens', 'Pequeno mamífero dos Himalaias. É solitário, arborícola e usa a cauda felpuda para se equilibrar e aquecer.', 5, 25, 50, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Red_Panda_%2825193861686%29.jpg/640px-Red_Panda_%2825193861686%29.jpg'),
+
+                                                                                                                          ('Lémure de Cauda Anelada', 'Lemur catta', 'Endémico de Madagáscar. Reconhecível pela cauda com anéis pretos e brancos. Adora apanhar banhos de sol.', 3, 40, 0, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/06/Ring-tailed_lemur_%28Lemur_catta%29.jpg/640px-Ring-tailed_lemur_%28Lemur_catta%29.jpg'),
+
+                                                                                                                          ('Pinguim do Cabo', 'Spheniscus demersus', 'A única espécie de pinguim que se reproduz em África. Conhecido pelo seu "smoking" natural e som semelhante a um burro.', 3, 60, 0, 2, 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/Mancot_01.jpg/640px-Mancot_01.jpg'),
+
+                                                                                                                          ('Urso Pardo', 'Ursus arctos', 'Um grande omnívoro poderoso. Prepara-se para o inverno acumulando grandes reservas de gordura para hibernar.', 400, 150, 200, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/2010-kodiak-bear-1.jpg/640px-2010-kodiak-bear-1.jpg'),
+
+                                                                                                                          ('Rinoceronte Branco', 'Ceratotherium simum', 'O segundo maior mamífero terrestre. O nome vem de um erro de tradução ("wijde" - boca larga). Tem dois cornos de queratina.', 2300, 180, 400, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/ba/White_Rhino_at_Kigio_Wildlife_Conservancy.jpg/640px-White_Rhino_at_Kigio_Wildlife_Conservancy.jpg'),
+
+                                                                                                                          ('Hipopótamo', 'Hippopotamus amphibius', 'Passa o dia na água para proteger a pele. Apesar do peso, corre mais rápido que um humano e é muito territorial.', 1500, 150, 450, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Hippopotamus_amphibius_-_01.jpg/640px-Hippopotamus_amphibius_-_01.jpg'),
+
+                                                                                                                          ('Lince Ibérico', 'Lynx pardinus', 'O felino mais ameaçado do mundo, exclusivo da Península Ibérica. Alimenta-se quase exclusivamente de coelhos.', 13, 50, 90, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Iberian_Lynx_cub_and_adult.jpg/640px-Iberian_Lynx_cub_and_adult.jpg'),
+
+                                                                                                                          ('Suricata', 'Suricata suricatta', 'Pequeno mamífero famoso por ficar de pé a vigiar o território. Vive em colónias subterrâneas cooperativas.', 0.7, 25, 0, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/Suricata_suricatta_2.jpg/640px-Suricata_suricatta_2.jpg'),
+
+                                                                                                                          ('Aligátor Americano', 'Alligator mississippiensis', 'Grande réptil dos pântanos. Distingue-se do crocodilo pelo focinho em forma de U e dentes inferiores escondidos.', 300, 0, 400, 3, 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/32/Alligator_mississippiensis_-_Oasis_Park_-_13.jpg/640px-Alligator_mississippiensis_-_Oasis_Park_-_13.jpg'),
+
+                                                                                                                          ('Arara Azul e Amarela', 'Ara ararauna', 'Papagaio grande e colorido da América do Sul. Muito inteligente e vocal, pode viver até 70 anos.', 1.1, 0, 85, 2, 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/Ara_ararauna_Luc_Viatour.jpg/640px-Ara_ararauna_Luc_Viatour.jpg'),
+
+                                                                                                                          ('Bongo', 'Tragelaphus eurycerus', 'Antílope florestal noturno com pelagem castanha avermelhada e riscas brancas para camuflagem na floresta densa.', 250, 120, 200, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/Bongo_antelope_arp.jpg/640px-Bongo_antelope_arp.jpg'),
+
+                                                                                                                          ('Okapi', 'Okapia johnstoni', 'Parente vivo mais próximo da girafa, embora pareça uma zebra nas pernas. Tem uma língua azul muito longa.', 250, 150, 250, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Okapi2.jpg/640px-Okapi2.jpg'),
+
+                                                                                                                          ('Ádax', 'Addax nasomaculatus', 'Antílope do deserto do Saara. A sua pelagem muda de cor com as estações (branca no verão, castanha no inverno).', 100, 105, 160, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9d/Addax_nasomaculatus_at_Marwell_Wildlife.jpg/640px-Addax_nasomaculatus_at_Marwell_Wildlife.jpg'),
+
+                                                                                                                          ('Bisonte Americano', 'Bison bison', 'O gigante da pradaria norte-americana. A sua cabeça massiça funciona como limpa-neves no inverno.', 900, 180, 300, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/American_bison_k5680-1.jpg/640px-American_bison_k5680-1.jpg'),
+
+                                                                                                                          ('Búfalo Africano', 'Syncerus caffer', 'Conhecido pela sua "armadura" de cornos fundidos na cabeça. Um dos animais mais temidos de África.', 700, 150, 300, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Syncerus_caffer_caffer_male_Kruger.jpg/640px-Syncerus_caffer_caffer_male_Kruger.jpg'),
+
+                                                                                                                          ('Tartaruga Gigante', 'Aldabrachelys gigantea', 'Uma das maiores tartarugas do mundo. Pode viver mais de 150 anos e pesa tanto como um leão.', 250, 60, 120, 3, 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Aldabra_Giant_Tortoise_Geochelone_gigantea.jpg/640px-Aldabra_Giant_Tortoise_Geochelone_gigantea.jpg'),
+
+                                                                                                                          ('Canguru Vermelho', 'Osphranter rufus', 'O maior marsupial do mundo. Usa a cauda robusta como terceira perna para equilíbrio.', 85, 150, 0, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/Red_kangaroo_-_Sascha_Unger.jpg/640px-Red_kangaroo_-_Sascha_Unger.jpg'),
+
+                                                                                                                          ('Muntjac Chinês', 'Muntiacus reevesi', 'Pequeno veado conhecido como "veado-ladrador" pelo som que faz. Os machos têm dentes caninos alongados.', 15, 50, 0, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/Muntiacus_reevesi_in_Japan.jpg/640px-Muntiacus_reevesi_in_Japan.jpg'),
+
+                                                                                                                          ('Palanca Negra', 'Hippotragus niger', 'Um dos antílopes mais majestosos de África, com cornos curvos em forma de cimitarra. Símbolo de Angola.', 230, 140, 0, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/Sable_antelope_%28Hippotragus_niger%29_adult_male.jpg/640px-Sable_antelope_%28Hippotragus_niger%29_adult_male.jpg'),
+
+                                                                                                                          ('Colobo Guereza', 'Colobus guereza', 'Macaco arborícola preto e branco com uma cauda longa. Não tem polegares, o que ajuda a saltar entre ramos.', 10, 60, 0, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/23/Mantled_guereza_%28Colobus_guereza%29.jpg/640px-Mantled_guereza_%28Colobus_guereza%29.jpg'),
+
+                                                                                                                          ('Chita', 'Acinonyx jubatus', 'O animal terrestre mais rápido, atingindo 110km/h. Não ruge, mas mia e ronrona como um gato.', 50, 80, 130, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/TheCheethcat.jpg/640px-TheCheethcat.jpg'),
+
+                                                                                                                          ('Babuíno Hamadrias', 'Papio hamadryas', 'Primata social que era sagrado no Antigo Egito. Os machos têm uma juba prateada impressionante.', 25, 70, 0, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/77/Babouin_hamadryas_M_singe.jpg/640px-Babouin_hamadryas_M_singe.jpg'),
+
+                                                                                                                          ('Pelicano', 'Pelecanus onocrotalus', 'Ave aquática com uma enorme bolsa no bico que pode conter 13 litros de água e peixe.', 10, 0, 160, 2, 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Pelecanus_onocrotalus_1.jpg/640px-Pelecanus_onocrotalus_1.jpg'),
+
+                                                                                                                          ('Leopardo da Pérsia', 'Panthera pardus saxicolor', 'Uma das maiores subespécies de leopardo. Mestre da camuflagem e força, sobe árvores com presas pesadas.', 70, 70, 150, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/Persian_Leopard_sitting.jpg/640px-Persian_Leopard_sitting.jpg'),
+
+                                                                                                                          ('Serval', 'Leptailurus serval', 'Felino de pernas longas e orelhas grandes que funcionam como radares. Salta 3 metros para apanhar aves.', 15, 60, 90, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d2/Serval_semiprofil.jpg/640px-Serval_semiprofil.jpg'),
+
+                                                                                                                          ('Órix', 'Oryx gazella', 'O "unicórnio" do deserto devido aos cornos longos e retos. Consegue sobreviver semanas sem água.', 200, 120, 0, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/Gemsbok_Oryx_gazella.jpg/640px-Gemsbok_Oryx_gazella.jpg'),
+
+                                                                                                                          ('Rinoceronte Indiano', 'Rhinoceros unicornis', 'Distingue-se pela pele com dobras que parece uma armadura e por ter apenas um corno.', 2000, 170, 350, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Indian_Rhinoceros_Rhinoceros_unicornis.jpg/640px-Indian_Rhinoceros_Rhinoceros_unicornis.jpg'),
+
+                                                                                                                          ('Puma', 'Puma concolor', 'Também chamado de leão-da-montanha. Tem a maior distribuição de qualquer mamífero nas Américas.', 80, 70, 150, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1c/Puma_Face.jpg/640px-Puma_Face.jpg'),
+
+                                                                                                                          ('Águia das Estepes', 'Aquila nipalensis', 'Ave de rapina migratória. O canto da boca vai até atrás do olho, parecendo um sorriso.', 3.2, 76, 0, 2, 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/88/Steppe_Eagle.jpg/640px-Steppe_Eagle.jpg'),
+
+                                                                                                                          ('Anaconda Amarela', 'Eunectes notaeus', 'Serpente constritora não venenosa. Segunda maior boa da América do Sul, excelente nadadora.', 30, 0, 350, 3, 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/Eunectes_notaeus01.jpg/640px-Eunectes_notaeus01.jpg'),
+
+                                                                                                                          ('Araçari Verde', 'Pteroglossus viridis', 'O membro mais pequeno da família dos tucanos. Apresenta cores diferentes entre macho e fêmea.', 0.13, 0, 35, 2, 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/Green_Aracari-2.jpg/640px-Green_Aracari-2.jpg'),
+
+                                                                                                                          ('Arara de Asa Verde', 'Ara chloropterus', 'Muitas vezes confundida com a arara escarlate, mas tem riscas verdes nas asas e linhas vermelhas na face.', 1.5, 0, 92, 2, 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/90/Ara_chloropterus_-Vogelburg_Weilrod%2C_Taunus%2C_Germany-8a.jpg/640px-Ara_chloropterus_-Vogelburg_Weilrod%2C_Taunus%2C_Germany-8a.jpg'),
+
+                                                                                                                          ('Arara de Fronte Vermelha', 'Ara rubrogenys', 'Espécie rara da Bolívia. Vive em penhascos áridos e catos, ao contrário de outras araras de floresta.', 0.55, 0, 60, 2, 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/Ara_rubrogenys_-upper_body-8a.jpg/640px-Ara_rubrogenys_-upper_body-8a.jpg'),
+
+                                                                                                                          ('Arara Escarlate', 'Ara macao', 'Ave de cores vibrantes (vermelho, amarelo, azul). Muito social e barulhenta na floresta tropical.', 1.2, 0, 86, 2, 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Ara_macao_qtl3.jpg/640px-Ara_macao_qtl3.jpg'),
+
+                                                                                                                          ('Arara Jacinta', 'Anodorhynchus hyacinthinus', 'A maior de todas as araras. O seu bico é tão forte que parte cocos. Tem uma cor azul-cobalto incrível.', 1.5, 0, 100, 2, 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/66/Anodorhynchus_hyacinthinus_-Hyacinth_Macaw_-side_of_head.jpg/640px-Anodorhynchus_hyacinthinus_-Hyacinth_Macaw_-side_of_head.jpg');
+
+
+-- ==================================================================================
+-- 6. LIGAÇÃO ANIMAL -> LOCAL (TABELA AE)
+-- ==================================================================================
+
+INSERT INTO ae (ae_ani_id, ae_enc_id, ae_dt_in, ae_dt_out, ae_code)
+SELECT a.ani_id, e.enc_id, NOW(), NULL, 'ZOO-' || a.ani_id
+FROM animal a, enclosure e
+WHERE
+    (a.ani_name LIKE '%Tigre da Sibéria%' AND e.enc_name LIKE '%Vale dos Tigres%') OR
+    (a.ani_name LIKE '%Tigre Branco%' AND e.enc_name LIKE '%Tigres Brancos%') OR
+    (a.ani_name LIKE '%Leão%' AND e.enc_name = 'Leões') OR
+    (a.ani_name LIKE '%Golfinho%' AND e.enc_name LIKE '%Golfinhos%') OR
+    (a.ani_name LIKE '%Elefante%' AND e.enc_name LIKE '%Elefantes%') OR
+    (a.ani_name LIKE '%Girafa%' AND e.enc_name = 'Girafas') OR
+    (a.ani_name LIKE '%Chimpanzé%' AND e.enc_name = 'Chimpanzé') OR
+    (a.ani_name LIKE '%Gorila%' AND e.enc_name LIKE '%Gorilas%') OR
+    (a.ani_name LIKE '%Koala%' AND e.enc_name LIKE '%Koalas%') OR
+    (a.ani_name LIKE '%Panda%' AND e.enc_name LIKE '%Panda%') OR
+    (a.ani_name LIKE '%Lémure%' AND e.enc_name LIKE '%Lémures%') OR
+    (a.ani_name LIKE '%Pinguim%' AND e.enc_name LIKE '%Pinguins%') OR
+    (a.ani_name LIKE '%Urso Pardo%' AND e.enc_name LIKE '%Ursos%') OR
+    (a.ani_name LIKE '%Rinoceronte Branco%' AND e.enc_name LIKE '%Rinocerontes Brancos%') OR
+    (a.ani_name LIKE '%Hipopótamo%' AND e.enc_name LIKE '%Hipopótamos%') OR
+    (a.ani_name LIKE '%Lince%' AND e.enc_name LIKE '%Lince%') OR
+    (a.ani_name LIKE '%Suricata%' AND e.enc_name LIKE '%Suricatas%') OR
+    (a.ani_name LIKE '%Aligátor%' AND e.enc_name LIKE '%Aligátor%') OR
+    (a.ani_name LIKE '%Bongo%' AND e.enc_name LIKE '%Bongos%') OR
+    (a.ani_name LIKE '%Okapi%' AND e.enc_name LIKE '%Okapis%') OR
+    (a.ani_name LIKE '%Ádax%' AND e.enc_name LIKE '%Adaxes%') OR
+    (a.ani_name LIKE '%Bisonte%' AND e.enc_name LIKE '%Bisonte%') OR
+    (a.ani_name LIKE '%Búfalo%' AND e.enc_name LIKE '%Búfalos%') OR
+    (a.ani_name LIKE '%Tartaruga%' AND e.enc_name LIKE '%Tartaruga%') OR
+    (a.ani_name LIKE '%Canguru%' AND e.enc_name LIKE '%Cangurus%') OR
+    (a.ani_name LIKE '%Muntjac%' AND e.enc_name LIKE '%Muntjac%') OR
+    (a.ani_name LIKE '%Palanca%' AND e.enc_name LIKE '%Palanca%') OR
+    (a.ani_name LIKE '%Colobo%' AND e.enc_name LIKE '%Colobo%') OR
+    (a.ani_name LIKE '%Chita%' AND e.enc_name LIKE '%Chitas%') OR
+    (a.ani_name LIKE '%Babuíno%' AND e.enc_name LIKE '%Babuíno%') OR
+    (a.ani_name LIKE '%Pelicano%' AND e.enc_name LIKE '%Pelicanos%') OR
+    (a.ani_name LIKE '%Leopardo%' AND e.enc_name LIKE '%Leopardo%') OR
+    (a.ani_name LIKE '%Serval%' AND e.enc_name LIKE '%Serval%') OR
+    (a.ani_name LIKE '%Órix%' AND e.enc_name LIKE '%Órix%') OR
+    (a.ani_name LIKE '%Rino%Indiano%' AND e.enc_name LIKE '%Rinocerontes-indianos%') OR
+    (a.ani_name LIKE '%Puma%' AND e.enc_name LIKE '%Pumas%') OR
+    (a.ani_name LIKE '%Águia%' AND e.enc_name LIKE '%Aves Exóticas%') OR
+    (a.ani_name LIKE '%Anaconda%' AND e.enc_name LIKE '%Reptilário%') OR
+    (a.ani_name LIKE '%Araçari%' AND e.enc_name LIKE '%Aves Exóticas%') OR
+    (a.ani_name LIKE '%Arara%' AND e.enc_name LIKE '%Palácio das Araras%');
+
+
+-- ==================================================================================
+-- 7. DADOS EXTRA
+-- ==================================================================================
+
+INSERT INTO person (per_name, per_email, per_password, per_gender, per_points) VALUES
+                                                                                   ('Visitante Demo', 'visitante@zoo.pt', '1234', 'F', 50),
+                                                                                   ('Admin Zoo', 'admin@zoo.pt', 'admin', 'M', 999);
+
+INSERT INTO activity (ac_name, ac_schedule, ac_cap, ac_area_id) VALUES
+                                                                    ('Alimentação dos Pelicanos', NOW() + INTERVAL '1 day', 50, 1),
+                                                                    ('Apresentação dos Golfinhos', NOW() + INTERVAL '2 hours', 200, 1);
+
+INSERT INTO kiosk (kio_name, kio_area_id) VALUES ('Quiosque Principal', 1), ('Gelados Olá', 1);
+
+INSERT INTO product (pro_name, pro_barcode, pro_price) VALUES
+                                                           ('Garrafa de Água 50cl', 1001, 1.50), ('Gelado', 1002, 2.50);
+
+INSERT INTO stock (stock_amount, stock_kio_id, stock_pro_id) VALUES (50, 1, 1), (50, 1, 2);
+
+INSERT INTO favorite (fav_ani_id, fav_per_id, fav_animal) VALUES (1, 1, 'true');
+
+SELECT '✅ Base de Dados ZOOPOLIS reconstruída com SUCESSO (Com URLs da Internet)!' as status;

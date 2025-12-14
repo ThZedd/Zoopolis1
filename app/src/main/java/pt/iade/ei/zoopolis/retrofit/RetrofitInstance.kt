@@ -43,11 +43,17 @@ object RetrofitInstance {
         .addInterceptor(authInterceptor)  // Adicionar o token nas requisições
         .build()
 
-    val api: Api = Retrofit.Builder()
+    private val retrofit = Retrofit.Builder()
         .addConverterFactory(GsonConverterFactory.create())
         .baseUrl(Api.BASE_URL)
         .client(client)
         .build()
-        .create(Api::class.java)
-}
 
+    val api: Api by lazy {
+        retrofit.create(Api::class.java)
+    }
+
+    val iaApi: IaApi by lazy {
+        retrofit.create(IaApi::class.java)
+    }
+}

@@ -4,8 +4,10 @@ C:\Zoopolis1\server\src\main\java\pt\iade\Zoopolis\controllers\AnimalController.
 C:\Zoopolis1\server\src\main\java\pt\iade\Zoopolis\controllers\AnimalDTOController.java
 C:\Zoopolis1\server\src\main\java\pt\iade\Zoopolis\controllers\EnclosureDTOController.java
 C:\Zoopolis1\server\src\main\java\pt\iade\Zoopolis\controllers\FavoriteController.java
+C:\Zoopolis1\server\src\main\java\pt\iade\Zoopolis\controllers\IAControllers.java
 C:\Zoopolis1\server\src\main\java\pt\iade\Zoopolis\controllers\ImageController.java
 C:\Zoopolis1\server\src\main\java\pt\iade\Zoopolis\controllers\PersonController.java
+C:\Zoopolis1\server\src\main\java\pt\iade\Zoopolis\controllers\TestController.java
 C:\Zoopolis1\server\src\main\java\pt\iade\Zoopolis\controllers\VisitedController.java
 C:\Zoopolis1\server\src\main\java\pt\iade\Zoopolis\interfaces\AnimalProjection.java
 C:\Zoopolis1\server\src\main\java\pt\iade\Zoopolis\models\Activity.java

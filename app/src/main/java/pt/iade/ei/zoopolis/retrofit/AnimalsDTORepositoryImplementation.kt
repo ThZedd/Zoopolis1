@@ -12,48 +12,50 @@ class AnimalsDTORepositoryImplementation(
 ): AnimalsDTORepository  {
     override suspend fun getAnimals(): Flow<Result<List<AnimalDTO>>> {
         return flow {
+            emit(Result.Loading)
             val animalsFromApi = try {
                 api.getAnimals()
             } catch (e: IOException) {
                 e.printStackTrace()
-                emit(Result.Error(message = "Erro ao carregar os animais"))
+                emit(Result.Error(message = "Erro ao carregar os animais", exception = e))
                 return@flow
 
             } catch (e: HttpException) {
                 e.printStackTrace()
-                emit(Result.Error(message = "Erro ao carregar os animais"))
+                emit(Result.Error(message = "Erro ao carregar os animais", exception = e))
                 return@flow
 
             } catch (e: Exception) {
                 e.printStackTrace()
-                emit(Result.Error(message = "Erro ao carregar os animais"))
+                emit(Result.Error(message = "Erro ao carregar os animais", exception = e))
                 return@flow
             }
-            emit(Result.Sucess(animalsFromApi))
+            emit(Result.Success(animalsFromApi))
         }
 
     }
     override suspend fun getAnimalsById(id: Int): Flow<Result<AnimalDTO>> {
         return flow {
+            emit(Result.Loading)
             val animalsByIdFromApi = try {
                 api.getAnimalsById(id)
 
             } catch (e: IOException) {
                 e.printStackTrace()
-                emit(Result.Error(message = "Erro ao carregar os animais"))
+                emit(Result.Error(message = "Erro ao carregar os animais", exception = e))
                 return@flow
 
             } catch (e: HttpException) {
                 e.printStackTrace()
-                emit(Result.Error(message = "Erro ao carregar os animais"))
+                emit(Result.Error(message = "Erro ao carregar os animais", exception = e))
                 return@flow
 
             } catch (e: Exception) {
                 e.printStackTrace()
-                emit(Result.Error(message = "Erro ao carregar os animais"))
+                emit(Result.Error(message = "Erro ao carregar os animais", exception = e))
                 return@flow
             }
-            emit(Result.Sucess(animalsByIdFromApi))
+            emit(Result.Success(animalsByIdFromApi))
         }
     }
 }

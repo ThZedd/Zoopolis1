@@ -1,13 +1,11 @@
 package pt.iade.ei.zoopolis.ui.components
 
-
 import android.content.Intent
 import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -16,7 +14,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -39,10 +36,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImagePainter
-import coil.compose.rememberAsyncImagePainter
-import coil.request.ImageRequest
-import coil.size.Size
 import pt.iade.ei.zoopolis.R
 import pt.iade.ei.zoopolis.models.AnimalDTO
 import pt.iade.ei.zoopolis.viewmodel.FavoriteViewModel
@@ -54,18 +47,24 @@ fun AnimalButtonTeste(
     viewModel: FavoriteViewModel
 ) {
     val context = LocalContext.current
-    val imageState = rememberAsyncImagePainter(
-        model = ImageRequest.Builder(LocalContext.current).data(animal.imageUrl).size(Size.ORIGINAL).build()
-    ).state
-
-    // Use remember e mutableStateOf para garantir que o estado do favorito seja mutável e observável
     val favoriteStatusMap = viewModel.favoriteStatus.collectAsState().value
+    val isFavorite = remember(animal.id, favoriteStatusMap) {
+        mutableStateOf(favoriteStatusMap[animal.id] ?: false)
+    }
 
-    // Use mutableStateOf para manter o estado local de isFavorite, ele será atualizado quando o estado do favoriteStatus mudar
-    val isFavorite = remember { mutableStateOf(favoriteStatusMap[animal.id] ?: false) }
-
-    // Log para verificar o valor de isFavorite
     Log.d("AnimalButtonTeste", "isFavorite for ${animal.id}: ${isFavorite.value}")
+
+    // Get the drawable resource ID directly from the imageUrl field
+    val imageResId = remember(animal.imageUrl) {
+        Log.d("AnimalButtonTeste", "Animal: '${animal.name}' -> Trying to find resource from imageUrl: '${animal.imageUrl}'")
+        val id = context.resources.getIdentifier(animal.imageUrl, "drawable", context.packageName)
+        if (id == 0) {
+            Log.w("AnimalButtonTeste", "Drawable resource '${animal.imageUrl}' not found. Falling back to default.")
+            R.drawable.ic_animal
+        } else {
+            id
+        }
+    }
 
     OutlinedCard(
         modifier = Modifier
@@ -87,7 +86,6 @@ fun AnimalButtonTeste(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            // Ícone e informações à esquerda
             Row(
                 modifier = Modifier
                     .weight(0.4f)
@@ -98,12 +96,10 @@ fun AnimalButtonTeste(
                 IconButton(
                     onClick = {
                         if (isFavorite.value) {
-                            viewModel.removeFavorite(animal.id) // Remove o favorito
+                            viewModel.removeFavorite(animal.id)
                         } else {
-                            viewModel.addFavorite(animal.id) // Adiciona aos favoritos
+                            viewModel.addFavorite(animal.id)
                         }
-                        // Após a ação, atualize o estado de isFavorite
-                        isFavorite.value = !isFavorite.value
                     },
                     modifier = Modifier
                         .padding(start = 5.dp)
@@ -120,7 +116,6 @@ fun AnimalButtonTeste(
 
                 Spacer(modifier = Modifier.padding(2.dp))
 
-                // Texto principal
                 Text(
                     text = animal.name,
                     fontWeight = FontWeight.Bold,
@@ -140,43 +135,13 @@ fun AnimalButtonTeste(
 
             Spacer(modifier = Modifier.padding(2.dp))
 
-            Box(
-                modifier = Modifier.weight(0.65f)
-            ) {
-                if (imageState is AsyncImagePainter.State.Error) {
-                    Log.e("AnimalButton", animal.imageUrl)
-                    Box(
-                        modifier = Modifier.fillMaxWidth(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator()
-                    }
-                }
-                if (imageState is AsyncImagePainter.State.Success) {
-                    Image(
-                        painter = imageState.painter,
-                        contentDescription = animal.name,
-                        contentScale = ContentScale.Crop
-                    )
-                }
-            }
+            // Use the local drawable resource
+            Image(
+                painter = painterResource(id = imageResId),
+                contentDescription = animal.name,
+                modifier = Modifier.weight(0.65f).fillMaxSize(),
+                contentScale = ContentScale.Crop
+            )
         }
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

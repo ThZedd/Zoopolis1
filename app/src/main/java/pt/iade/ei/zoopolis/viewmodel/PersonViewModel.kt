@@ -42,7 +42,7 @@ class PersonViewModel(
             val result = personRepository.login(loginRequestDTO)
             _loginResult.postValue(result) // Atualiza o LiveData com o resultado
 
-            if (result is Result.Sucess) {
+            if (result is Result.Success) {
                 val loginResponse = result.data
                 if (loginResponse != null) {
                     // Salvar token e user_id na sessão

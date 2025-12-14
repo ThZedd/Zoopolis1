@@ -1,40 +1,34 @@
 package pt.iade.Zoopolis.controllers;
 
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
-import org.springframework.http.HttpHeaders;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.beans.factory.annotation.Value;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.io.IOException;
+import java.io.File;
+import java.io.FileInputStream;
 
 @RestController
 @RequestMapping("/api/images")
 public class ImageController {
 
-    // Caminho onde as imagens estão armazenadas
-    @Value("${image.path}")  // Defina a propriedade no application.properties
+    @Value("${image.path}")
     private String imagePath;
 
-    // Endpoint para acessar a imagem
-    @GetMapping("/{imageName:.+}")
-    public ResponseEntity<Resource> getImage(@PathVariable String imageName) throws IOException {
-        Path imageLocation = Paths.get(imagePath).resolve(imageName);
-        Resource imageResource = new UrlResource(imageLocation.toUri());
-
-        if (imageResource.exists() || imageResource.isReadable()) {
-            // Retorna a imagem com o tipo de conteúdo adequado
-            return ResponseEntity.ok()
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + imageResource.getFilename() + "\"")
-                    .contentType(MediaType.IMAGE_JPEG)  // Ou o tipo adequado para a imagem
-                    .body(imageResource);
-        } else {
-            // Se a imagem não existir ou não puder ser lida
-            return ResponseEntity.notFound().build();
+    @GetMapping("/{imageName}")
+    public ResponseEntity<InputStreamResource> getImage(@PathVariable String imageName) {
+        try {
+            File imageFile = new File(imagePath + imageName);
+            if (imageFile.exists()) {
+                InputStreamResource resource = new InputStreamResource(new FileInputStream(imageFile));
+                return ResponseEntity.ok()
+                        .contentType(MediaType.IMAGE_JPEG) // ou MediaType.IMAGE_PNG, etc.
+                        .body(resource);
+            }
+        } catch (Exception e) {
+            // Logar o erro seria uma boa prática
         }
+        return ResponseEntity.notFound().build();
     }
 }

@@ -53,8 +53,8 @@ import androidx.compose.ui.unit.sp
 import pt.iade.ei.zoopolis.ActivitiesMenuActivity
 import pt.iade.ei.zoopolis.AnimalMenuActivity
 import pt.iade.ei.zoopolis.FavoriteMenuActivity
+import pt.iade.ei.zoopolis.GoogleMapsActivity
 import pt.iade.ei.zoopolis.MainMenuActivity
-import pt.iade.ei.zoopolis.MapMenuActivity
 import pt.iade.ei.zoopolis.PricesMenuActivity
 import pt.iade.ei.zoopolis.ProfileMenuActivity
 import pt.iade.ei.zoopolis.R
@@ -182,7 +182,7 @@ fun MainMenu() {
                         }
 
                         Row {
-                            MenuButton("Mapa", R.drawable.mapazoo, MapMenuActivity::class.java)
+                            MenuButton("Mapa", R.drawable.mapazoo, GoogleMapsActivity::class.java)
                             MenuButton("Preços", R.drawable.precos, PricesMenuActivity::class.java)
                         }
 
@@ -304,7 +304,7 @@ fun MainMenu() {
                         }
 
                         Row {
-                            MenuButton("Mapa", R.drawable.mapazoo, MapMenuActivity::class.java)
+                            MenuButton("Mapa", R.drawable.mapazoo, GoogleMapsActivity::class.java)
                             MenuButton("Preços", R.drawable.precos, PricesMenuActivity::class.java)
                         }
 
@@ -332,8 +332,8 @@ fun MainMenu() {
                             .padding(top = 480.dp)
                             .fillMaxSize(),
                             colors = CardDefaults.cardColors(
-                                containerColor = Color(0xFF58A458)))
-                        {
+                                containerColor = Color(0xFF58A458))
+                        ){
                             Column(
                                 modifier = Modifier.padding(top = 20.dp, start = 55.dp, end = 55.dp),
                                 horizontalAlignment = Alignment.CenterHorizontally,

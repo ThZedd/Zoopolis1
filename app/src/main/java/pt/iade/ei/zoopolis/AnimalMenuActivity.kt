@@ -51,7 +51,7 @@ class AnimalMenuActivity : ComponentActivity() {
             ZoopolisTheme {
                 val animalsList = viewModel.animals.collectAsState().value
                 val context = LocalContext.current
-                val favoriteStatus = favoriteViewModel.favoriteStatus.collectAsState().value
+
                 LaunchedEffect(key1 = viewModel.showErrorToastChannel) {
                     viewModel.showErrorToastChannel.collectLatest { show ->
                         if (show) {
@@ -69,8 +69,7 @@ class AnimalMenuActivity : ComponentActivity() {
                         CircularProgressIndicator()
                     }
                 } else {
-
-                    AnimalMenuTeste()
+                    AnimalMenuTeste(animals = animalsList, favoriteViewModel = favoriteViewModel)
                 }
 
             }
@@ -78,6 +77,3 @@ class AnimalMenuActivity : ComponentActivity() {
         }
     }
 }
-
-
-

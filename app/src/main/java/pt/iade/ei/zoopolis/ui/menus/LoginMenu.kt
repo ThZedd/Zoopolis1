@@ -182,7 +182,7 @@ fun LoginMenu(viewModel: PersonViewModel) {
 
     // Observa o estado de login
     when (val result = loginResponse) {
-        is Result.Sucess -> {
+        is Result.Success -> {
             // Se login for bem-sucedido, redireciona
             isLoading = false
             val intent = Intent(context, MainMenuActivity::class.java)

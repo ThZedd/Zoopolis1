@@ -9,28 +9,30 @@ import java.io.IOException
 class EnclosureDTORepositoryImplementation(private val api: Api) : EnclosureDTORepository {
 
     override suspend fun getAllEnclosures(): Flow<Result<List<EnclosureDTO>>> = flow {
+        emit(Result.Loading)
         try {
             val response = api.getAllEnclosures()
-            emit(Result.Sucess(response))
+            emit(Result.Success(response))
         } catch (e: IOException) {
-            emit(Result.Error(message = "Error fetching enclosures: ${e.message}"))
+            emit(Result.Error(message = "Error fetching enclosures: ${e.message}", exception = e))
         } catch (e: HttpException) {
-            emit(Result.Error(message = "HTTP error fetching enclosures: ${e.message()}"))
+            emit(Result.Error(message = "HTTP error fetching enclosures: ${e.message()}", exception = e))
         } catch (e: Exception) {
-            emit(Result.Error(message = "Unexpected error: ${e.message}"))
+            emit(Result.Error(message = "Unexpected error: ${e.message}", exception = e))
         }
     }
 
     override suspend fun getEnclosureById(id: Int): Flow<Result<EnclosureDTO>> = flow {
+        emit(Result.Loading)
         try {
             val response = api.getEnclosureById(id)
-            emit(Result.Sucess(response))
+            emit(Result.Success(response))
         } catch (e: IOException) {
-            emit(Result.Error(message = "Error fetching enclosure by ID: ${e.message}"))
+            emit(Result.Error(message = "Error fetching enclosure by ID: ${e.message}", exception = e))
         } catch (e: HttpException) {
-            emit(Result.Error(message = "HTTP error fetching enclosure by ID: ${e.message()}"))
+            emit(Result.Error(message = "HTTP error fetching enclosure by ID: ${e.message()}", exception = e))
         } catch (e: Exception) {
-            emit(Result.Error(message = "Unexpected error: ${e.message}"))
+            emit(Result.Error(message = "Unexpected error: ${e.message}", exception = e))
         }
     }
 }

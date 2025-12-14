@@ -1,48 +1,17 @@
 package pt.iade.ei.zoopolis.ui.menus
 
-
 import android.content.Intent
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.ThumbUp
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedCard
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.rememberTopAppBarState
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -59,10 +28,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import coil.compose.AsyncImagePainter
-import coil.compose.rememberAsyncImagePainter
-import coil.request.ImageRequest
-import coil.size.Size
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -73,13 +38,13 @@ import pt.iade.ei.zoopolis.ProfileMenuActivity
 import pt.iade.ei.zoopolis.R
 import pt.iade.ei.zoopolis.models.AnimalDTO
 import pt.iade.ei.zoopolis.models.SessionManager
-import pt.iade.ei.zoopolis.ui.components.GetDirectionsButton
-import pt.iade.ei.zoopolis.viewmodel.AnimalDTOViewModel
-import  pt.iade.ei.zoopolis.ui.components.TextField
-import pt.iade.ei.zoopolis.viewmodel.AEDTOViewModel
 import pt.iade.ei.zoopolis.retrofit.Result
 import pt.iade.ei.zoopolis.ui.components.AnimalDescriptionBoxTeste
 import pt.iade.ei.zoopolis.ui.components.AnimalNameBoxTeste
+import pt.iade.ei.zoopolis.ui.components.GetDirectionsButton
+import pt.iade.ei.zoopolis.ui.components.TextField
+import pt.iade.ei.zoopolis.viewmodel.AEDTOViewModel
+import pt.iade.ei.zoopolis.viewmodel.AnimalDTOViewModel
 import pt.iade.ei.zoopolis.viewmodel.PersonViewModel
 import pt.iade.ei.zoopolis.viewmodel.VisitedViewModel
 
@@ -92,32 +57,27 @@ fun AnimalDescriptionMenuTeste(animal: AnimalDTO, viewModel: AEDTOViewModel, per
     var code by remember { mutableStateOf("") }
     var theCode by remember { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
-    // Ação de erro de rede
+
+    // Error Handling
     val showErrorToast by animalDTOViewModel.showErrorToastChannel.collectAsState(initial = false)
     if (showErrorToast) {
         Toast.makeText(LocalContext.current, "Error loading animals", Toast.LENGTH_SHORT).show()
     }
-    val imageState = rememberAsyncImagePainter(
-        model = ImageRequest.Builder(LocalContext.current).data(animal.imageUrl).size(Size.ORIGINAL)
-            .build()
-    ).state
+
     val sessionManager = SessionManager(context)
     val personId = sessionManager.getUserId()
 
     var rightCode by remember { mutableStateOf("Carregando...") }
 
-    // Disparando a busca do AE pelo animalId
+    // Fetch AE code
     LaunchedEffect(animal.id) {
         viewModel.getAEByAnimalId(animal.id)
     }
 
-    // Observando aeByAnimalId usando collectAsState
     val aeByAnimalIdState = viewModel.aeByAnimalId.observeAsState()
 
-    // Atualizando rightCode com base no estado do resultado
     when (val result = aeByAnimalIdState.value) {
-        is Result.Sucess -> {
-            // Filtra o AE com o animal.id correspondente
+        is Result.Success -> {
             val ae = result.data?.firstOrNull { it.animal.id == animal.id }
             rightCode = ae?.code ?: "Código não encontrado"
         }
@@ -129,30 +89,33 @@ fun AnimalDescriptionMenuTeste(animal: AnimalDTO, viewModel: AEDTOViewModel, per
         }
     }
 
-
-
+    // Get the local drawable resource ID directly from the imageUrl field
+    val imageResId = remember(animal.imageUrl) {
+        val id = context.resources.getIdentifier(animal.imageUrl, "drawable", context.packageName)
+        if (id == 0) R.drawable.ic_animal else id
+    }
 
     Box {
+        // Background Image
         Image(
             modifier = Modifier.fillMaxSize(),
             painter = painterResource(R.drawable.mainmenubackground),
             contentDescription = "background_image",
             contentScale = ContentScale.FillBounds
         )
+
         val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
+
         Scaffold(
             containerColor = Color.Transparent,
             modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-
             topBar = {
                 CenterAlignedTopAppBar(
                     colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                         containerColor = Color.Transparent,
                         titleContentColor = MaterialTheme.colorScheme.primary,
                     ),
-                    title = {
-
-                    },
+                    title = {},
                     navigationIcon = {
                         IconButton(
                             onClick = {
@@ -165,7 +128,7 @@ fun AnimalDescriptionMenuTeste(animal: AnimalDTO, viewModel: AEDTOViewModel, per
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Home,
-                                contentDescription = "Localized description",
+                                contentDescription = "Home",
                                 tint = Color.White,
                                 modifier = Modifier.size(75.dp)
                             )
@@ -173,39 +136,33 @@ fun AnimalDescriptionMenuTeste(animal: AnimalDTO, viewModel: AEDTOViewModel, per
                     },
                     actions = {
                         Row(
-                            horizontalArrangement = Arrangement.spacedBy(8.dp), // Espaçamento entre os ícones
-                            modifier = Modifier.padding(top = 20.dp, end = 10.dp) // Padding geral
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            modifier = Modifier.padding(top = 20.dp, end = 10.dp)
                         ) {
                             IconButton(
-                                onClick =
-                                {
+                                onClick = {
                                     val intent = Intent(context, FavoriteMenuActivity::class.java)
                                     context.startActivity(intent)
                                 },
-                                modifier = Modifier
-                                    .size(60.dp)
-                            )
-                            {
+                                modifier = Modifier.size(60.dp)
+                            ) {
                                 Icon(
                                     painter = painterResource(R.drawable.favorite_heart_menu),
-                                    contentDescription = "Localized description",
+                                    contentDescription = "Favorites",
                                     tint = Color.White,
                                     modifier = Modifier.size(60.dp)
                                 )
                             }
                             IconButton(
-                                onClick =
-                                {
+                                onClick = {
                                     val intent = Intent(context, ProfileMenuActivity::class.java)
                                     context.startActivity(intent)
                                 },
                                 modifier = Modifier.size(60.dp)
-
-                            )
-                            {
+                            ) {
                                 Icon(
                                     painter = painterResource(R.drawable.account_circle),
-                                    contentDescription = "Localized description",
+                                    contentDescription = "Profile",
                                     tint = Color.White,
                                     modifier = Modifier.size(60.dp)
                                 )
@@ -219,14 +176,11 @@ fun AnimalDescriptionMenuTeste(animal: AnimalDTO, viewModel: AEDTOViewModel, per
         ) { innerPadding ->
             if (!theCode) {
                 Box(
-
                     contentAlignment = Alignment.TopCenter,
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(top = 120.dp)
-
                 ) {
-
                     LazyColumn(
                         modifier = Modifier
                             .padding(innerPadding)
@@ -235,22 +189,40 @@ fun AnimalDescriptionMenuTeste(animal: AnimalDTO, viewModel: AEDTOViewModel, per
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         item {
+                            // Main Animal Image Card
                             OutlinedCard(
                                 modifier = Modifier
                                     .padding(vertical = 0.dp, horizontal = 8.dp)
                                     .size(width = 330.dp, height = 200.dp),
-                                colors = CardDefaults.cardColors(
-                                    containerColor = Color(0xFF0D4311)
-                                ),
-                                border = BorderStroke(
-                                    borderStrokeWidthSize.dp,
-                                    Color(0xFFE8FFD2)
-                                ),
-                                elevation = CardDefaults.cardElevation(
-                                    defaultElevation = 7.dp
-                                )
+                                colors = CardDefaults.cardColors(containerColor = Color(0xFF0D4311)),
+                                border = BorderStroke(borderStrokeWidthSize.dp, Color(0xFFE8FFD2)),
+                                elevation = CardDefaults.cardElevation(defaultElevation = 7.dp)
                             ) {
+                                // CORRECTED: Use local drawable resource
+                                Image(
+                                    painter = painterResource(id = imageResId),
+                                    contentDescription = animal.name,
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentScale = ContentScale.Crop
+                                )
+                            }
 
+                            GetDirectionsButton(
+                                name = "Get Directions",
+                                containerColor = Color(0xFF0D4311),
+                                animal = animal
+                            )
+
+                            // "Enter The Code" Button
+                            OutlinedCard(
+                                modifier = Modifier
+                                    .padding(vertical = 15.dp, horizontal = 8.dp)
+                                    .size(width = 330.dp, height = 60.dp),
+                                colors = CardDefaults.cardColors(containerColor = Color(0xFF0D4311)),
+                                border = BorderStroke(borderStrokeWidthSize.dp, Color(0xFFFFFFFF)),
+                                elevation = CardDefaults.cardElevation(defaultElevation = 7.dp),
+                                onClick = { theCode = true }
+                            ) {
                                 Row(
                                     modifier = Modifier.fillMaxSize(),
                                     horizontalArrangement = Arrangement.Center,
@@ -260,62 +232,14 @@ fun AnimalDescriptionMenuTeste(animal: AnimalDTO, viewModel: AEDTOViewModel, per
                                         modifier = Modifier.fillMaxSize(),
                                         contentAlignment = Alignment.Center
                                     ) {
-                                        if (imageState is AsyncImagePainter.State.Error) {
-                                            Log.e("AnimalButton", animal.imageUrl)
-                                            Box(
-                                                modifier = Modifier.fillMaxWidth(),
-                                                contentAlignment = Alignment.Center
-                                            ) {
-                                                CircularProgressIndicator()
-                                            }
-                                        }
-                                        if (imageState is AsyncImagePainter.State.Success) {
-                                            Image(
-                                                painter = imageState.painter,
-                                                contentDescription = animal.name,
-                                                contentScale = ContentScale.Crop
-                                            )
-                                        }
-                                    }
-                                }
-                            }
-                            GetDirectionsButton(
-                                name = "Get Directions",
-                                containerColor = Color(0xFF0D4311),
-                                animal = animal
-                            )
-                            OutlinedCard(
-                                modifier = Modifier
-                                    .padding(vertical = 15.dp, horizontal = 8.dp)
-                                    .size(width = 330.dp, height = 60.dp),
-                                colors = CardDefaults.cardColors(
-                                    containerColor = Color(0xFF0D4311)),
-                                border = BorderStroke(borderStrokeWidthSize.dp, Color(0xFFFFFFFF)),
-                                elevation = CardDefaults.cardElevation(
-                                    defaultElevation = 7.dp
-                                ),
-                                onClick = {
-                                    theCode = true
-                                }
-                            ){
-                                Row(
-                                    modifier = Modifier.fillMaxSize(),
-                                    horizontalArrangement = Arrangement.Center,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ){
-                                    Box(
-                                        modifier = Modifier.fillMaxSize(),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-
                                         Box {
-                                            // Contorno - Desenha o texto em todas as direções para simular o contorno
+                                            // Stroke effect for text
                                             Text(
                                                 text = "Enter The Code",
                                                 fontWeight = FontWeight.Bold,
                                                 fontSize = 22.sp,
                                                 textAlign = TextAlign.Center,
-                                                color = Color(0xFF0D4311), // Cor do contorno
+                                                color = Color(0xFF0D4311),
                                                 modifier = Modifier.offset(x = 1.dp, y = 2.dp)
                                             )
                                             Text(
@@ -323,7 +247,7 @@ fun AnimalDescriptionMenuTeste(animal: AnimalDTO, viewModel: AEDTOViewModel, per
                                                 fontWeight = FontWeight.Bold,
                                                 fontSize = 22.sp,
                                                 textAlign = TextAlign.Center,
-                                                color = Color(0xFF0D4311), // Cor do contorno
+                                                color = Color(0xFF0D4311),
                                                 modifier = Modifier.offset(x = -1.dp, y = 0.dp)
                                             )
                                             Text(
@@ -331,7 +255,7 @@ fun AnimalDescriptionMenuTeste(animal: AnimalDTO, viewModel: AEDTOViewModel, per
                                                 fontWeight = FontWeight.Bold,
                                                 fontSize = 22.sp,
                                                 textAlign = TextAlign.Center,
-                                                color = Color(0xFF0D4311), // Cor do contorno
+                                                color = Color(0xFF0D4311),
                                                 modifier = Modifier.offset(x = 0.dp, y = 1.dp)
                                             )
                                             Text(
@@ -339,29 +263,22 @@ fun AnimalDescriptionMenuTeste(animal: AnimalDTO, viewModel: AEDTOViewModel, per
                                                 fontWeight = FontWeight.Bold,
                                                 fontSize = 22.sp,
                                                 textAlign = TextAlign.Center,
-                                                color = Color(0xFF0D4311), // Cor do contorno
+                                                color = Color(0xFF0D4311),
                                                 modifier = Modifier.offset(x = 0.dp, y = -1.dp)
                                             )
-
-                                            // Texto principal
                                             Text(
                                                 text = "Enter The Code",
                                                 fontWeight = FontWeight.Bold,
                                                 fontSize = 22.sp,
                                                 textAlign = TextAlign.Center,
                                                 color = Color.White,
-                                                style = TextStyle(
-                                                    shadow = Shadow(
-                                                        color = Color.Black,
-                                                        offset = Offset(4f, 4f), // Ajuste o deslocamento da sombra
-                                                        blurRadius = 6f // Aumente o valor para uma sombra mais suave
-                                                    )
-                                                )
+                                                style = TextStyle(shadow = Shadow(color = Color.Black, offset = Offset(4f, 4f), blurRadius = 6f))
                                             )
                                         }
                                     }
                                 }
                             }
+
                             AnimalNameBoxTeste(
                                 animal = AnimalDTO(
                                     id = animal.id,
@@ -372,7 +289,6 @@ fun AnimalDescriptionMenuTeste(animal: AnimalDTO, viewModel: AEDTOViewModel, per
                                 )
                             )
 
-
                             AnimalDescriptionBoxTeste(
                                 animal = AnimalDTO(
                                     id = animal.id,
@@ -382,12 +298,12 @@ fun AnimalDescriptionMenuTeste(animal: AnimalDTO, viewModel: AEDTOViewModel, per
                                     imageUrl = animal.imageUrl
                                 )
                             )
-
                         }
                     }
                 }
             } else {
-                Box(
+                // Code for the 'Enter the Code' screen
+                 Box(
                     contentAlignment = Alignment.TopCenter,
                     modifier = Modifier
                         .fillMaxSize()
@@ -399,25 +315,18 @@ fun AnimalDescriptionMenuTeste(animal: AnimalDTO, viewModel: AEDTOViewModel, per
                             .fillMaxSize(),
                         verticalArrangement = Arrangement.Center,
                         horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-
-                    }
+                    ) {}
                     Box(
-
                         contentAlignment = Alignment.TopCenter,
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(top = 0.dp)
-
                     ) { Box(
-
                         contentAlignment = Alignment.TopCenter,
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(top = 120.dp)
-
                     ) {
-
                         LazyColumn(
                             modifier = Modifier
                                 .padding(innerPadding)
@@ -430,18 +339,10 @@ fun AnimalDescriptionMenuTeste(animal: AnimalDTO, viewModel: AEDTOViewModel, per
                                     modifier = Modifier
                                         .padding(vertical = 0.dp, horizontal = 8.dp)
                                         .size(width = 330.dp, height = 200.dp),
-                                    colors = CardDefaults.cardColors(
-                                        containerColor = Color(0xFF0D4311)
-                                    ),
-                                    border = BorderStroke(
-                                        borderStrokeWidthSize.dp,
-                                        Color(0xFFE8FFD2)
-                                    ),
-                                    elevation = CardDefaults.cardElevation(
-                                        defaultElevation = 7.dp
-                                    )
+                                    colors = CardDefaults.cardColors(containerColor = Color(0xFF0D4311)),
+                                    border = BorderStroke(borderStrokeWidthSize.dp, Color(0xFFE8FFD2)),
+                                    elevation = CardDefaults.cardElevation(defaultElevation = 7.dp)
                                 ) {
-
                                     Row(
                                         modifier = Modifier.fillMaxSize(),
                                         horizontalArrangement = Arrangement.Center,
@@ -451,22 +352,12 @@ fun AnimalDescriptionMenuTeste(animal: AnimalDTO, viewModel: AEDTOViewModel, per
                                             modifier = Modifier.fillMaxSize(),
                                             contentAlignment = Alignment.Center
                                         ) {
-                                            if (imageState is AsyncImagePainter.State.Error) {
-                                                Log.e("AnimalButton", animal.imageUrl)
-                                                Box(
-                                                    modifier = Modifier.fillMaxWidth(),
-                                                    contentAlignment = Alignment.Center
-                                                ) {
-                                                    CircularProgressIndicator()
-                                                }
-                                            }
-                                            if (imageState is AsyncImagePainter.State.Success) {
-                                                Image(
-                                                    painter = imageState.painter,
-                                                    contentDescription = animal.name,
-                                                    contentScale = ContentScale.Crop
-                                                )
-                                            }
+                                            Image(
+                                                painter = painterResource(id = imageResId),
+                                                contentDescription = animal.name,
+                                                modifier = Modifier.fillMaxSize(),
+                                                contentScale = ContentScale.Crop
+                                            )
                                         }
                                     }
                                 }
@@ -479,34 +370,27 @@ fun AnimalDescriptionMenuTeste(animal: AnimalDTO, viewModel: AEDTOViewModel, per
                                     modifier = Modifier
                                         .padding(vertical = 15.dp, horizontal = 8.dp)
                                         .size(width = 330.dp, height = 60.dp),
-                                    colors = CardDefaults.cardColors(
-                                        containerColor = Color(0xFF0D4311)),
+                                    colors = CardDefaults.cardColors(containerColor = Color(0xFF0D4311)),
                                     border = BorderStroke(borderStrokeWidthSize.dp, Color(0xFFFFFFFF)),
-                                    elevation = CardDefaults.cardElevation(
-                                        defaultElevation = 7.dp
-                                    ),
-                                    onClick = {
-
-                                    }
-                                ){
+                                    elevation = CardDefaults.cardElevation(defaultElevation = 7.dp),
+                                    onClick = {}
+                                ) {
                                     Row(
                                         modifier = Modifier.fillMaxSize(),
                                         horizontalArrangement = Arrangement.Center,
                                         verticalAlignment = Alignment.CenterVertically
-                                    ){
+                                    ) {
                                         Box(
                                             modifier = Modifier.fillMaxSize(),
                                             contentAlignment = Alignment.Center
                                         ) {
-
                                             Box {
-                                                // Contorno - Desenha o texto em todas as direções para simular o contorno
                                                 Text(
                                                     text = "Enter The Code",
                                                     fontWeight = FontWeight.Bold,
                                                     fontSize = 22.sp,
                                                     textAlign = TextAlign.Center,
-                                                    color = Color(0xFF0D4311), // Cor do contorno
+                                                    color = Color(0xFF0D4311),
                                                     modifier = Modifier.offset(x = 1.dp, y = 2.dp)
                                                 )
                                                 Text(
@@ -514,7 +398,7 @@ fun AnimalDescriptionMenuTeste(animal: AnimalDTO, viewModel: AEDTOViewModel, per
                                                     fontWeight = FontWeight.Bold,
                                                     fontSize = 22.sp,
                                                     textAlign = TextAlign.Center,
-                                                    color = Color(0xFF0D4311), // Cor do contorno
+                                                    color = Color(0xFF0D4311),
                                                     modifier = Modifier.offset(x = -1.dp, y = 0.dp)
                                                 )
                                                 Text(
@@ -522,7 +406,7 @@ fun AnimalDescriptionMenuTeste(animal: AnimalDTO, viewModel: AEDTOViewModel, per
                                                     fontWeight = FontWeight.Bold,
                                                     fontSize = 22.sp,
                                                     textAlign = TextAlign.Center,
-                                                    color = Color(0xFF0D4311), // Cor do contorno
+                                                    color = Color(0xFF0D4311),
                                                     modifier = Modifier.offset(x = 0.dp, y = 1.dp)
                                                 )
                                                 Text(
@@ -530,24 +414,16 @@ fun AnimalDescriptionMenuTeste(animal: AnimalDTO, viewModel: AEDTOViewModel, per
                                                     fontWeight = FontWeight.Bold,
                                                     fontSize = 22.sp,
                                                     textAlign = TextAlign.Center,
-                                                    color = Color(0xFF0D4311), // Cor do contorno
+                                                    color = Color(0xFF0D4311),
                                                     modifier = Modifier.offset(x = 0.dp, y = -1.dp)
                                                 )
-
-                                                // Texto principal
                                                 Text(
                                                     text = "Enter The Code",
                                                     fontWeight = FontWeight.Bold,
                                                     fontSize = 22.sp,
                                                     textAlign = TextAlign.Center,
                                                     color = Color.White,
-                                                    style = TextStyle(
-                                                        shadow = Shadow(
-                                                            color = Color.Black,
-                                                            offset = Offset(4f, 4f), // Ajuste o deslocamento da sombra
-                                                            blurRadius = 6f // Aumente o valor para uma sombra mais suave
-                                                        )
-                                                    )
+                                                    style = TextStyle(shadow = Shadow(color = Color.Black, offset = Offset(3f, 3f), blurRadius = 6f))
                                                 )
                                             }
                                         }
@@ -562,8 +438,6 @@ fun AnimalDescriptionMenuTeste(animal: AnimalDTO, viewModel: AEDTOViewModel, per
                                         imageUrl = animal.imageUrl
                                     )
                                 )
-
-
                                 AnimalDescriptionBoxTeste(
                                     animal = AnimalDTO(
                                         id = animal.id,
@@ -573,11 +447,9 @@ fun AnimalDescriptionMenuTeste(animal: AnimalDTO, viewModel: AEDTOViewModel, per
                                         imageUrl = animal.imageUrl
                                     )
                                 )
-
                             }
                         }
                     }
-
                         Column(
                             modifier = Modifier
                                 .padding(innerPadding)
@@ -585,22 +457,14 @@ fun AnimalDescriptionMenuTeste(animal: AnimalDTO, viewModel: AEDTOViewModel, per
                             verticalArrangement = Arrangement.Center,
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-
                             Card(
                                 modifier = Modifier
                                     .padding(top = 520.dp)
                                     .fillMaxSize(),
-                                colors = CardDefaults.cardColors(
-                                    containerColor = Color(0xFF58A458)
-                                )
-                            )
-                            {
+                                colors = CardDefaults.cardColors(containerColor = Color(0xFF58A458))
+                            ) {
                                 Column(
-                                    modifier = Modifier.padding(
-                                        top = 20.dp,
-                                        start = 55.dp,
-                                        end = 55.dp
-                                    ),
+                                    modifier = Modifier.padding(top = 20.dp, start = 55.dp, end = 55.dp),
                                     horizontalAlignment = Alignment.CenterHorizontally,
                                     verticalArrangement = Arrangement.Center
                                 ) {
@@ -623,17 +487,12 @@ fun AnimalDescriptionMenuTeste(animal: AnimalDTO, viewModel: AEDTOViewModel, per
                                     Row(
                                         verticalAlignment = Alignment.CenterVertically,
                                         horizontalArrangement = Arrangement.Center
-                                    )
-                                    {
+                                    ) {
                                         Card(modifier = Modifier
                                             .padding(top = 7.dp, bottom = 10.dp)
                                             .size(width = 135.dp, height = 40.dp),
-                                            colors = CardDefaults.cardColors(
-                                                containerColor = Color.White
-                                            ),
-                                            elevation = CardDefaults.cardElevation(
-                                                defaultElevation = 7.dp,
-                                            ),
+                                            colors = CardDefaults.cardColors(containerColor = Color.White),
+                                            elevation = CardDefaults.cardElevation(defaultElevation = 7.dp),
                                             onClick = {
                                                 code = ""
                                                 theCode = false
@@ -644,10 +503,7 @@ fun AnimalDescriptionMenuTeste(animal: AnimalDTO, viewModel: AEDTOViewModel, per
                                                 horizontalArrangement = Arrangement.Center,
                                                 verticalAlignment = Alignment.CenterVertically
                                             ) {
-
                                                 Box {
-
-                                                    // Texto principal
                                                     Text(
                                                         text = "Cancel",
                                                         fontWeight = FontWeight.Bold,
@@ -662,12 +518,8 @@ fun AnimalDescriptionMenuTeste(animal: AnimalDTO, viewModel: AEDTOViewModel, per
                                         Card(modifier = Modifier
                                             .padding(top = 7.dp, bottom = 10.dp)
                                             .size(width = 180.dp, height = 40.dp),
-                                            colors = CardDefaults.cardColors(
-                                                containerColor = Color(0xFF1E1E1E)
-                                            ),
-                                            elevation = CardDefaults.cardElevation(
-                                                defaultElevation = 7.dp,
-                                            ),
+                                            colors = CardDefaults.cardColors(containerColor = Color(0xFF1E1E1E)),
+                                            elevation = CardDefaults.cardElevation(defaultElevation = 7.dp),
                                             onClick = {
                                                 if(code == rightCode){
                                                   personViewModel.addPointToPerson(personId)
@@ -675,7 +527,6 @@ fun AnimalDescriptionMenuTeste(animal: AnimalDTO, viewModel: AEDTOViewModel, per
                                                 }
                                                 CoroutineScope(Dispatchers.Main).launch {
                                                     delay(2000L) // 1 segundo
-                                                    // Outras ações ou apenas o delay sem continuar nada
                                                 }
                                                 code = ""
                                                 theCode = false
@@ -687,39 +538,21 @@ fun AnimalDescriptionMenuTeste(animal: AnimalDTO, viewModel: AEDTOViewModel, per
                                                 verticalAlignment = Alignment.CenterVertically
                                             ) {
                                                 Box {
-                                                    // Contorno - Desenha o texto em todas as direções para simular o contorno
                                                     Text(
                                                         text = "Enter",
                                                         fontWeight = FontWeight.Bold,
                                                         fontSize = 18.sp,
                                                         textAlign = TextAlign.Center,
-                                                        color = Color.Black, // Contorno geralmente é preto
-                                                        style = TextStyle(
-                                                            shadow = Shadow(
-                                                                color = Color.Black,
-                                                                offset = Offset(-3f, -3f),
-                                                                blurRadius = 0.75f
-                                                            )
-                                                        )
+                                                        color = Color.Black,
+                                                        style = TextStyle(shadow = Shadow(color = Color.Black, offset = Offset(-3f, -3f), blurRadius = 0.75f))
                                                     )
-
-                                                    // Texto principal
                                                     Text(
                                                         text = "Enter",
                                                         fontWeight = FontWeight.Bold,
                                                         fontSize = 18.sp,
                                                         textAlign = TextAlign.Center,
                                                         color = Color.White,
-                                                        style = TextStyle(
-                                                            shadow = Shadow(
-                                                                color = Color.Black,
-                                                                offset = Offset(
-                                                                    3f,
-                                                                    3f
-                                                                ), // Ajuste o deslocamento da sombra
-                                                                blurRadius = 0.75f // Aumente o valor para uma sombra mais suave
-                                                            )
-                                                        )
+                                                        style = TextStyle(shadow = Shadow(color = Color.Black, offset = Offset(3f, 3f), blurRadius = 0.75f))
                                                     )
                                                 }
                                             }
@@ -734,5 +567,3 @@ fun AnimalDescriptionMenuTeste(animal: AnimalDTO, viewModel: AEDTOViewModel, per
         }
     }
 }
-
-

@@ -13,25 +13,26 @@ class FavoriteRepositoryImplementation(
 
     override suspend fun getFavoriteAnimalsByPerson(personId: Int): Flow<Result<List<AnimalDTO>>> {
         return flow {
+            emit(Result.Loading)
             val favoriteAnimalsByPersonFromApi = try {
                 api.getFavoriteAnimalsByPerson(personId)
 
             } catch (e: IOException) {
                 e.printStackTrace()
-                emit(Result.Error(message = "Erro ao carregar os animais"))
+                emit(Result.Error(message = "Erro ao carregar os animais", exception = e))
                 return@flow
 
             } catch (e: HttpException) {
                 e.printStackTrace()
-                emit(Result.Error(message = "Erro ao carregar os animais"))
+                emit(Result.Error(message = "Erro ao carregar os animais", exception = e))
                 return@flow
 
             } catch (e: Exception) {
                 e.printStackTrace()
-                emit(Result.Error(message = "Erro ao carregar os animais"))
+                emit(Result.Error(message = "Erro ao carregar os animais", exception = e))
                 return@flow
             }
-            emit(Result.Sucess(favoriteAnimalsByPersonFromApi))
+            emit(Result.Success(favoriteAnimalsByPersonFromApi))
         }
     }
 

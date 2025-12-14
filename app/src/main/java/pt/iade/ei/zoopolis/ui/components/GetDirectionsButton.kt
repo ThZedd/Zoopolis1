@@ -46,7 +46,6 @@ fun GetDirectionsButton(name: String, containerColor: Color, animal: AnimalDTO) 
             val intent = Intent(context,GoogleMapsActivity::class.java)
             intent.putExtra("animal_id", animal.id)
             context.startActivity(intent)
-            context.startActivity(intent)
         }
     ){
 

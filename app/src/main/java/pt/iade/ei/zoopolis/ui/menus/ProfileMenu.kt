@@ -160,7 +160,7 @@ fun ProfileMenu(personViewModel: PersonViewModel) {
 
                             // Exibe os dados da pessoa se disponíveis
                             when (val result = personResult.value) {
-                                is Result.Sucess -> {
+                                is Result.Success -> {
                                     val person = result.data
                                     Text(
                                         text = person?.name ?: "Unknown",

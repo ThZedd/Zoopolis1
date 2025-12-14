@@ -10,12 +10,14 @@ pt\iade\Zoopolis\controllers\PersonController.class
 pt\iade\Zoopolis\models\repositories\PersonRepository.class
 pt\iade\Zoopolis\models\LoginResponseDTO.class
 pt\iade\Zoopolis\controllers\AnimalDTOController.class
+pt\iade\Zoopolis\controllers\TestController.class
 pt\iade\Zoopolis\models\CorsConfig.class
 pt\iade\Zoopolis\models\repositories\AERepository.class
 pt\iade\Zoopolis\controllers\EnclosureDTOController.class
 pt\iade\Zoopolis\models\Area.class
 pt\iade\Zoopolis\models\repositories\AreaRepository.class
 pt\iade\Zoopolis\models\Enclosure.class
+pt\iade\Zoopolis\controllers\IAControllers.class
 pt\iade\Zoopolis\models\LoginRequestDTO.class
 pt\iade\Zoopolis\models\AnimalDTO.class
 pt\iade\Zoopolis\models\repositories\AnimalRepository.class

@@ -11,65 +11,65 @@ class PersonRepositoryImplementation(private val api: Api) : PersonRepository {
     override suspend fun getPersons(): Result<List<Person>> {
         return try {
             val response = api.getPersons()
-            Result.Sucess(response)
+            Result.Success(response)
         } catch (e: IOException) {
-            Result.Error(message = "Error fetching persons: ${e.message}")
+            Result.Error(message = "Error fetching persons: ${e.message}", exception = e)
         } catch (e: HttpException) {
-            Result.Error(message = "HTTP error fetching persons: ${e.message()}")
+            Result.Error(message = "HTTP error fetching persons: ${e.message()}", exception = e)
         } catch (e: Exception) {
-            Result.Error(message = "Unexpected error: ${e.message}")
+            Result.Error(message = "Unexpected error: ${e.message}", exception = e)
         }
     }
 
     override suspend fun getPersonById(id: Int): Result<Person> {
         return try {
             val response = api.getPersonsById(id)
-            Result.Sucess(response)
+            Result.Success(response)
         } catch (e: IOException) {
-            Result.Error(message = "Error fetching person by ID: ${e.message}")
+            Result.Error(message = "Error fetching person by ID: ${e.message}", exception = e)
         } catch (e: HttpException) {
-            Result.Error(message = "HTTP error fetching person by ID: ${e.message()}")
+            Result.Error(message = "HTTP error fetching person by ID: ${e.message()}", exception = e)
         } catch (e: Exception) {
-            Result.Error(message = "Unexpected error: ${e.message}")
+            Result.Error(message = "Unexpected error: ${e.message}", exception = e)
         }
     }
 
     override suspend fun login(loginRequestDTO: LoginRequestDTO): Result<LoginResponseDTO> {
         return try {
             val response = api.login(loginRequestDTO)
-            Result.Sucess(response)
+            Result.Success(response)
         } catch (e: IOException) {
-            Result.Error(message = "Login failed: ${e.message}")
+            Result.Error(message = "Login failed: ${e.message}", exception = e)
         } catch (e: HttpException) {
-            Result.Error(message = "Email or password incorrect ${e.message()}")
+            Result.Error(message = "Email or password incorrect ${e.message()}", exception = e)
         } catch (e: Exception) {
-            Result.Error(message = "Unexpected error during login: ${e.message}")
+            Result.Error(message = "Unexpected error during login: ${e.message}", exception = e)
         }
     }
 
     override suspend fun register(person: Person): Result<Person> {
         return try {
             val response = api.register(person)
-            Result.Sucess(response)
+            Result.Success(response)
         } catch (e: IOException) {
-            Result.Error(message = "Registration failed: ${e.message}")
+            Result.Error(message = "Registration failed: ${e.message}", exception = e)
         } catch (e: HttpException) {
-            Result.Error(message = "You need to fill all the fields ${e.message()}")
+            Result.Error(message = "You need to fill all the fields ${e.message()}", exception = e)
         } catch (e: Exception) {
-            Result.Error(message = "Unexpected error during registration: ${e.message}")
+            Result.Error(message = "Unexpected error during registration: ${e.message}", exception = e)
         }
     }
 
     override suspend fun addPointToPerson(id: Int): Result<String> {
         return try {
             val response = api.addPointToPerson(id)
-            Result.Sucess(response)
+            Result.Success(response)
         } catch (e: IOException) {
-            Result.Error(message = "Error adding point to person: ${e.message}")
+            Result.Error(message = "Error adding point to person: ${e.message}", exception = e)
         } catch (e: HttpException) {
-            Result.Error(message = "HTTP error adding point to person: ${e.message()}")
+            Result.Error(message = "HTTP error adding point to person: ${e.message()}", exception = e)
         } catch (e: Exception) {
-            Result.Error(message = "Unexpected error adding point: ${e.message}")
+            Result.Error(message = "Unexpected error adding point: ${e.message}", exception = e)
         }
     }
 

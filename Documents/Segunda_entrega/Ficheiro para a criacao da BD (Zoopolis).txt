@@ -1,456 +1,390 @@
-*******Ficheiro de Criação da BD*******
-
-
--- Schema padrão
-CREATE SCHEMA IF NOT EXISTS zoopolis AUTHORIZATION postgres;
-
--- Trocar para o schema
+-- ==================================================================================
+-- 1. RESET TOTAL
+-- ==================================================================================
+DROP SCHEMA IF EXISTS zoopolis CASCADE;
+CREATE SCHEMA zoopolis AUTHORIZATION postgres;
 SET search_path TO zoopolis;
 
--- docker exec -it postgres-primary psql -U postgres -d postgres
+-- ==================================================================================
+-- 2. CRIAÇÃO DAS TABELAS
+-- ==================================================================================
 
-/* Tabela para cadastro de animais */
-CREATE TABLE animal (
-                        ani_id SERIAL PRIMARY KEY,               -- Identificador único do animal
-                        ani_name VARCHAR(60) NOT NULL,           -- Nome do animal
-                        ani_ci_name VARCHAR(60),                 -- Nome científico do animal
-                        ani_description TEXT,                    -- Descrição do animal
-                        ani_weight FLOAT,                        -- Peso do animal
-                        ani_height FLOAT,                        -- Altura do animal
-                        ani_length FLOAT,                        -- Comprimento do animal
-                        ani_cla_id INT,                          -- ID da classe associada ao animal
-                        imageurl VARCHAR(255)                    -- URL da imagem do animal
-);
-
-/* Tabela para classes de animais */
 CREATE TABLE class (
-                       cla_id SERIAL PRIMARY KEY,               -- Identificador único da classe
-                       cla_name VARCHAR(60) NOT NULL,           -- Nome da classe
-                       cla_order VARCHAR(30),                   -- Ordem da classe
-                       cla_fam VARCHAR(30)                      -- Família da classe
+                       cla_id SERIAL PRIMARY KEY,
+                       cla_name VARCHAR(60) NOT NULL,
+                       cla_order VARCHAR(60),
+                       cla_fam VARCHAR(60)
 );
 
-/* Tabela para registros de animais em enclosures */
-CREATE TABLE ae (
-                    ae_id SERIAL PRIMARY KEY,                -- Identificador único do registro
-                    ae_ani_id INT,                           -- ID do animal
-                    ae_enc_id INT,                           -- ID do enclosure
-                    ae_dt_in TIMESTAMP,                      -- Data/hora de entrada do animal
-                    ae_dt_out TIMESTAMP,                     -- Data/hora de saída do animal
-                    ae_code VARCHAR(30)                      -- Código do animal
-);
-
-/* Tabela para detalhes de enclosures */
-CREATE TABLE enclosure (
-                           enc_id SERIAL PRIMARY KEY,               -- Identificador único do enclosure
-                           enc_name VARCHAR(60) NOT NULL,           -- Nome do enclosure
-                           enc_sup_amount INT,                      -- Quantidade de animais suportados
-                           enc_aniclass VARCHAR(30),                -- Classe de animais suportada
-                           enc_lat DOUBLE PRECISION NOT NULL,       -- Latitude do enclosure
-                           enc_long DOUBLE PRECISION NOT NULL,      -- Longitude do enclosure
-                           enc_sa_id INT                            -- ID da sub-área associada
-);
-
-/* Tabela para sub-áreas dentro de uma área */
-CREATE TABLE sub_area (
-                          sa_id SERIAL PRIMARY KEY,                -- Identificador único da sub-área
-                          sa_area_id INT,                          -- ID da área associada
-                          sa_name VARCHAR(30)                      -- Nome da sub-área
-);
-
-/* Tabela para áreas principais do zoológico */
 CREATE TABLE area (
-                      area_id SERIAL PRIMARY KEY,              -- Identificador único da área
-                      area_name VARCHAR(30)                    -- Nome da área
+                      area_id SERIAL PRIMARY KEY,
+                      area_name VARCHAR(60)
 );
 
-/* Tabela para atividades realizadas no zoológico */
-CREATE TABLE activity (
-                          ac_id SERIAL PRIMARY KEY,                -- Identificador único da atividade
-                          ac_name VARCHAR(50),                     -- Nome da atividade
-                          ac_schedule TIMESTAMP,                   -- Horário agendado da atividade
-                          ac_cap INT,                              -- Capacidade de espectadores
-                          ac_area_id INT                           -- ID da área onde ocorre
+CREATE TABLE sub_area (
+                          sa_id SERIAL PRIMARY KEY,
+                          sa_area_id INT REFERENCES area(area_id),
+                          sa_name VARCHAR(60)
 );
 
-/* Tabela para registro de visitas de pessoas */
-CREATE TABLE visited (
-                         vi_id SERIAL PRIMARY KEY,                -- Identificador único da visita
-                         vi_per_id INT,                           -- ID da pessoa
-                         vi_sa_id INT,                            -- ID da sub-área visitada
-                         vi_dtime TIMESTAMP NOT NULL              -- Data/hora da visita
+CREATE TABLE enclosure (
+                           enc_id SERIAL PRIMARY KEY,
+                           enc_name VARCHAR(60) NOT NULL,
+                           enc_sup_amount INT,
+                           enc_aniclass VARCHAR(30),
+                           enc_lat DOUBLE PRECISION NOT NULL,
+                           enc_long DOUBLE PRECISION NOT NULL,
+                           enc_sa_id INT REFERENCES sub_area(sa_id)
 );
 
-/* Tabela para cadastro de pessoas */
+CREATE TABLE animal (
+                        ani_id SERIAL PRIMARY KEY,
+                        ani_name VARCHAR(60) NOT NULL,
+                        ani_ci_name VARCHAR(60),
+                        ani_description TEXT,
+                        ani_weight FLOAT,
+                        ani_height FLOAT,
+                        ani_length FLOAT,
+                        ani_cla_id INT REFERENCES class(cla_id),
+                        imageurl TEXT -- MUDANÇA: Mudado para TEXT para aceitar URLs longos
+);
+
+CREATE TABLE ae (
+                    ae_id SERIAL PRIMARY KEY,
+                    ae_ani_id INT REFERENCES animal(ani_id),
+                    ae_enc_id INT REFERENCES enclosure(enc_id),
+                    ae_dt_in TIMESTAMP,
+                    ae_dt_out TIMESTAMP,
+                    ae_code VARCHAR(30)
+);
+
 CREATE TABLE person (
-                        per_id SERIAL PRIMARY KEY,               -- Identificador único da pessoa
-                        per_name VARCHAR(60) NOT NULL,           -- Nome
-                        per_email VARCHAR(30) UNIQUE,            -- Email
-                        per_password VARCHAR(255) NOT NULL,      -- Senha
-                        per_gender CHAR(1) NOT NULL,             -- Gênero
-                        per_points INT NOT NULL                  -- Pontos
+                        per_id SERIAL PRIMARY KEY,
+                        per_name VARCHAR(60) NOT NULL,
+                        per_email VARCHAR(60) UNIQUE,
+                        per_password VARCHAR(255) NOT NULL,
+                        per_gender VARCHAR(20),
+                        per_points INT NOT NULL DEFAULT 0
 );
 
-/* Tabela para registro de animais favoritos */
-CREATE TABLE favorite (
-                          fav_id SERIAL PRIMARY KEY,               -- Identificador único do favorito
-                          fav_animal BOOLEAN,                      -- Indica se é um animal favorito
-                          fav_ani_id INT,                          -- ID do animal
-                          fav_per_id INT                           -- ID da pessoa
+CREATE TABLE activity (
+                          ac_id SERIAL PRIMARY KEY,
+                          ac_name VARCHAR(60),
+                          ac_schedule TIMESTAMP,
+                          ac_cap INT,
+                          ac_area_id INT REFERENCES area(area_id)
 );
 
-/* Tabela para quiosques */
 CREATE TABLE kiosk (
-                       kio_id SERIAL PRIMARY KEY,               -- Identificador único do quiosque
-                       kio_name VARCHAR(30),                    -- Nome do quiosque
-                       kio_area_id INT                          -- ID da área associada
+                       kio_id SERIAL PRIMARY KEY,
+                       kio_name VARCHAR(60),
+                       kio_area_id INT REFERENCES area(area_id)
 );
 
-/* Tabela para estoques de quiosques */
-CREATE TABLE stock (
-                       stock_id SERIAL PRIMARY KEY,             -- Identificador único do estoque
-                       stock_amount INT,                        -- Quantidade em estoque
-                       stock_kio_id INT,                        -- ID do quiosque
-                       stock_pro_id INT                         -- ID do produto
-);
-
-/* Tabela para produtos disponíveis */
 CREATE TABLE product (
-                         pro_id SERIAL PRIMARY KEY,               -- Identificador único do produto
-                         pro_name VARCHAR(100),                   -- Nome do produto
-                         pro_barcode BIGINT UNIQUE CHECK (pro_barcode > 0),  -- Código de barras
-                         pro_price DECIMAL(10,2)                  -- Preço
+                         pro_id SERIAL PRIMARY KEY,
+                         pro_name VARCHAR(100),
+                         pro_barcode BIGINT,
+                         pro_price DOUBLE PRECISION
 );
 
----------------------------------------------------
--- RELAÇÕES (FOREIGN KEYS)
----------------------------------------------------
+CREATE TABLE stock (
+                       stock_id SERIAL PRIMARY KEY,
+                       stock_amount INT,
+                       stock_kio_id INT REFERENCES kiosk(kio_id),
+                       stock_pro_id INT REFERENCES product(pro_id)
+);
 
-ALTER TABLE animal
-    ADD CONSTRAINT animal_fk_class
-        FOREIGN KEY (ani_cla_id) REFERENCES class(cla_id)
-            ON DELETE NO ACTION ON UPDATE NO ACTION;
+CREATE TABLE visited (
+                         vi_id SERIAL PRIMARY KEY,
+                         vi_per_id INT REFERENCES person(per_id),
+                         vi_sa_id INT REFERENCES sub_area(sa_id),
+                         vi_dtime TIMESTAMP NOT NULL
+);
 
-ALTER TABLE ae
-    ADD CONSTRAINT ae_fk_animal
-        FOREIGN KEY (ae_ani_id) REFERENCES animal(ani_id)
-            ON DELETE NO ACTION ON UPDATE NO ACTION;
-
-ALTER TABLE ae
-    ADD CONSTRAINT ae_fk_enclosure
-        FOREIGN KEY (ae_enc_id) REFERENCES enclosure(enc_id)
-            ON DELETE NO ACTION ON UPDATE NO ACTION;
-
-ALTER TABLE enclosure
-    ADD CONSTRAINT enclosure_fk_sub_area
-        FOREIGN KEY (enc_sa_id) REFERENCES sub_area(sa_id)
-            ON DELETE NO ACTION ON UPDATE NO ACTION;
-
-ALTER TABLE sub_area
-    ADD CONSTRAINT sub_area_fk_area
-        FOREIGN KEY (sa_area_id) REFERENCES area(area_id)
-            ON DELETE NO ACTION ON UPDATE NO ACTION;
-
-ALTER TABLE activity
-    ADD CONSTRAINT activity_fk_area
-        FOREIGN KEY (ac_area_id) REFERENCES area(area_id)
-            ON DELETE NO ACTION ON UPDATE NO ACTION;
-
-ALTER TABLE visited
-    ADD CONSTRAINT visited_fk_person
-        FOREIGN KEY (vi_per_id) REFERENCES person(per_id)
-            ON DELETE NO ACTION ON UPDATE NO ACTION;
-
-ALTER TABLE visited
-    ADD CONSTRAINT visited_fk_sub_area
-        FOREIGN KEY (vi_sa_id) REFERENCES sub_area(sa_id)
-            ON DELETE NO ACTION ON UPDATE NO ACTION;
-
-ALTER TABLE favorite
-    ADD CONSTRAINT favorite_fk_animal
-        FOREIGN KEY (fav_ani_id) REFERENCES animal(ani_id)
-            ON DELETE NO ACTION ON UPDATE NO ACTION;
-
-ALTER TABLE favorite
-    ADD CONSTRAINT favorite_fk_person
-        FOREIGN KEY (fav_per_id) REFERENCES person(per_id)
-            ON DELETE NO ACTION ON UPDATE NO ACTION;
-
-ALTER TABLE kiosk
-    ADD CONSTRAINT kiosk_fk_area
-        FOREIGN KEY (kio_area_id) REFERENCES area(area_id)
-            ON DELETE NO ACTION ON UPDATE NO ACTION;
-
-ALTER TABLE stock
-    ADD CONSTRAINT stock_fk_kiosk
-        FOREIGN KEY (stock_kio_id) REFERENCES kiosk(kio_id)
-            ON DELETE NO ACTION ON UPDATE NO ACTION;
-
-ALTER TABLE stock
-    ADD CONSTRAINT stock_fk_product
-        FOREIGN KEY (stock_pro_id) REFERENCES product(pro_id)
-            ON DELETE NO ACTION ON UPDATE NO ACTION;
-
-ALTER TABLE zoopolis.favorite
-    ALTER COLUMN fav_animal TYPE VARCHAR(255)
-        USING fav_animal::text;
-
-ALTER TABLE zoopolis.person
-    ALTER COLUMN per_gender TYPE VARCHAR(255)
-        USING per_gender::text;
-
-ALTER TABLE zoopolis.product
-    ALTER COLUMN pro_price TYPE DOUBLE PRECISION
-        USING pro_price::double precision;
+CREATE TABLE favorite (
+                          fav_id SERIAL PRIMARY KEY,
+                          fav_animal VARCHAR(10),
+                          fav_ani_id INT REFERENCES animal(ani_id),
+                          fav_per_id INT REFERENCES person(per_id)
+);
 
 
-/**************** INSERT INTO CLASS TABLE ****************/
-/****************    Tabela Obrigatória   ****************/
--- Ádax
-INSERT INTO class (cla_name, cla_order, cla_fam) VALUES ('Mamíferos', 'Cetartiodactyla', 'Bovidae');
--- Águia-das-estepes
-INSERT INTO class (cla_name, cla_order, cla_fam) VALUES ('Aves', 'Accipitriformes', 'Accipitridae');
--- Aligátor-americano
-INSERT INTO class (cla_name, cla_order, cla_fam) VALUES ('Répteis', 'Crocodylia', 'Alligatoridae');
--- Anaconda-amarela
-INSERT INTO class (cla_name, cla_order, cla_fam) VALUES ('Répteis', 'Squamata', 'Boidae');
--- Araçari-verde
-INSERT INTO class (cla_name, cla_order, cla_fam) VALUES ('Aves', 'Piciformes', 'Ramphastidae');
--- Arara-azul-e-amarela
-INSERT INTO class (cla_name, cla_order, cla_fam) VALUES ('Aves', 'Psittaciformes', 'Psittacidae');
+-- ==================================================================================
+-- 3. DADOS BÁSICOS
+-- ==================================================================================
+
+INSERT INTO class (cla_name, cla_order, cla_fam) VALUES
+                                                     ('Mamíferos', 'Mammalia', 'Vários'),
+                                                     ('Aves', 'Aves', 'Vários'),
+                                                     ('Répteis', 'Reptilia', 'Vários'),
+                                                     ('Anfíbios', 'Amphibia', 'Vários'),
+                                                     ('Serviços', 'Urbano', 'Serviço'),
+                                                     ('Transporte', 'Urbano', 'Transporte'),
+                                                     ('Comida', 'Urbano', 'Restauração'),
+                                                     ('Cidade', 'Urbano', 'Geral'),
+                                                     ('Saúde', 'Urbano', 'Hospital');
+
+INSERT INTO area (area_name) VALUES ('Zoo Lisboa'), ('Cidade Envolvente');
+INSERT INTO sub_area (sa_area_id, sa_name) VALUES (1, 'Interior do Zoo'), (2, 'Exterior / Sete Rios');
 
 
-/**************** INSERT INTO ANIMAL TABLE  ****************/
-/****************    Tabela Obrigatória     ****************/
--- Ádax
-INSERT INTO animal (ani_name, ani_ci_name, ani_description, ani_weight, ani_height, ani_length, ani_cla_id)
-VALUES (
-           'Ádax', 'Addax nasomaculatus',
-           'Ambos os sexos têm um tufo de pelos castanhos na fronte e cornos. A pelagem de verão é branca e a de inverno tem um tom acastanhado. É o antílope melhor adaptado ao deserto, onde caminha facilmente com a ajuda de cascos largos na base.',
-           100.0, 105.0, 160.0, 1
-       );
+-- ==================================================================================
+-- 4. LOCAIS DO MAPA (ENCLOSURES)
+-- ==================================================================================
 
--- Águia-das-estepes
-INSERT INTO animal (ani_name, ani_ci_name, ani_description, ani_weight, ani_height, ani_length, ani_cla_id)
-VALUES (
-           'Águia-das-estepes', 'Aquila nipalensis',
-           'Águia de porte médio-grande, em que a fêmea é maior do que o macho. Nos olhos, a íris é castanha; e as narinas são ovais, contrariamente a outras espécies. Aos 4 anos, a plumagem de adulto, castanho-escura, está completa. Os juvenis apresentam geralmente uma banda esbranquiçada nas tectrizes (penas de cobertura nas asas).',
-           3.2, 76.0, 0, 2
-       );
+INSERT INTO enclosure (enc_name, enc_lat, enc_long, enc_sa_id, enc_sup_amount, enc_aniclass) VALUES
+-- TRANSPORTES & CIDADE
+('Laranjeiras (Metro)', 38.7475369, -9.170902, 2, 0, 'TRANSPORTE'),
+('Praça de Espanha', 38.737684, -9.1592473, 2, 0, 'CIDADE'),
+('Alto dos Moinhos', 38.7498954, -9.1797946, 2, 0, 'TRANSPORTE'),
+('Sete Rios (Estação)', 38.7419616, -9.167221, 2, 0, 'TRANSPORTE'),
+('Sete Rios - Zoo', 38.7424765, -9.1674358, 2, 0, 'TRANSPORTE'),
+('Estrada de Benfica (Furnas)', 38.742575, -9.1726282, 2, 0, 'CIDADE'),
+('Estrada das Laranjeiras', 38.7453615, -9.1693658, 2, 0, 'CIDADE'),
+('Loja do Cidadão', 38.7496467, -9.1724903, 2, 0, 'SERVICO'),
+('Hospital dos Lusíadas', 38.749171, -9.178159, 2, 0, 'CIDADE'),
+('Hospital da Cruz Vermelha', 38.745889, -9.175394, 2, 0, 'CIDADE'),
 
--- Aligátor-americano
-INSERT INTO animal (ani_name, ani_ci_name, ani_description, ani_weight, ani_height, ani_length, ani_cla_id)
-VALUES (
-           'Aligátor-americano', 'Alligator mississippiensis',
-           'Os dedos estão ligados por membranas interdigitais. As narinas na ponta do focinho permitem-lhe respirar enquanto o corpo está submerso. Distingue-se do crocodilo (Crocodylus sp.) por ter o 4º dente na mandíbula. Este não é visível quando a boca do animal está fechada, já que encaixa numa concavidade no maxilar superior.',
-           400, 0, 450.0, 3
-       );
+-- SERVIÇOS & COMIDA
+('Jardim Zoológico (Entrada)', 38.7420882, -9.1689132, 1, 0, 'SERVICO'),
+('Saída', 38.743849, -9.1696622, 1, 0, 'SERVICO'),
+('Carrossel', 38.7434484, -9.1683219, 1, 0, 'SERVICO'),
+('ZOOvenir', 38.743413, -9.169527, 1, 0, 'SERVICO'),
+('McDonald''s', 38.7434275, -9.1699526, 1, 0, 'COMIDA'),
+('Comboio do Zoo', 38.7432354, -9.1707117, 1, 0, 'TRANSPORTE'),
+('Teleférico', 38.744130, -9.170596, 1, 0, 'TRANSPORTE'),
+('Snack-Bar Africa', 38.7447463, -9.1704399, 1, 0, 'COMIDA'),
+('Bar Zoo', 38.7429171, -9.1721373, 1, 0, 'COMIDA'),
+('Cafetaria Orquídea', 38.7452398, -9.1690847, 2, 0, 'COMIDA'),
+('Solar dos Canadianos', 38.7436821, -9.1743438, 2, 0, 'COMIDA'),
+('Restaurante Coral', 38.7421129, -9.1722881, 2, 0, 'COMIDA'),
+('Farmácia Sete Rios', 38.7453217, -9.1691272, 2, 0, 'SERVICO'),
+('Farmácia Alegria', 38.743115, -9.1738965, 2, 0, 'SERVICO'),
+('O Churrasco', 38.7461241, -9.1695217, 2, 0, 'COMIDA'),
+('Talho Ferdinando', 38.743779, -9.1739238, 2, 0, 'COMIDA'),
+('Big Kebab House', 38.7470128, -9.1679048, 2, 0, 'COMIDA'),
 
--- Anaconda-amarela
-INSERT INTO animal (ani_name, ani_ci_name, ani_description, ani_weight, ani_height, ani_length, ani_cla_id)
-VALUES (
-           'Anaconda-amarela', 'Eunectes notaeus',
-           'A anaconda-amarela é a segunda maior espécie de boa na América do Sul. As fêmeas são maiores do que os machos. Apresenta escamas amareladas com um padrão de manchas arredondadas de cor negra e uma mancha escura em forma de ponta de flecha na cabeça. Os olhos e as narinas estão no topo da cabeça. Espécie não venenosa.',
-           30, 0, 350.0, 4
-       );
-
--- Araçari-verde
-INSERT INTO animal (ani_name, ani_ci_name, ani_description, ani_weight, ani_height, ani_length, ani_cla_id)
-VALUES (
-           'Araçari-verde', 'Pteroglossus viridis',
-           'Este é um pequeno tucano, com plumagem sobretudo verde escura e amarela com uma distinta mancha vermelha. O bico é colorido com amarelo, vermelho e preto. Há dimorfismo sexual: o macho tem as penas do pescoço e da cabeça de cor escura enquanto que as da fêmea são de cor castanha-avermelhada.',
-           0.130, 0, 35, 5
-       );
-
--- Arara-azul-e-amarela
-INSERT INTO animal (ani_name, ani_ci_name, ani_description, ani_weight, ani_height, ani_length, ani_cla_id)
-VALUES (
-           'Arara-azul-e-amarela', 'Ara ararauna',
-           'Apresenta pele nua, nas faces, de cor branca e com pequenas penas escuras, que formam riscas paralelas. Distingue-se pela plumagem verde na coroa e na fronte. Sendo considerada uma das mais bonitas espécies de arara. Machos, fêmeas e juvenis apresentam todos plumagem semelhante.',
-           1.15, 0, 86, 6
-       );
-
--- Arara-de-asa-verde
-INSERT INTO animal (ani_name, ani_ci_name, ani_description, ani_weight, ani_height, ani_length, ani_cla_id)
-VALUES (
-           'Arara-de-asa-verde', 'Ara chloropterus',
-           'A plumagem é vermelho-vivo com pele nua branca na face, onde tem pequenas penas vermelhas. As asas apresentam penas verdes e azuis. A parte superior das penas caudais é azul e vermelha. É muito semelhante com a arara-escarlate (Ara macao), que se distingue pelas penas amarelas nas asas e pela pele nua na face.',
-           1.5, 0, 92, 6
-       );
-
--- Arara-de-fronte-vermelha
-INSERT INTO animal (ani_name, ani_ci_name, ani_description, ani_weight, ani_height, ani_length, ani_cla_id)
-VALUES (
-           'Arara-de-fronte-vermelha', 'Ara rubrogenys',
-           'Distingue-se pela coloração viva, onde sobressaem a fronte e a coroa vermelhas. Em torno dos olhos e na base do bico tem pele nua rosada. Não existe dimorfismo sexual evidente, machos e fêmeas não se distinguem por observação.',
-           0.550, 0, 60, 6
-       );
-
--- Arara-escarlate
-INSERT INTO animal (ani_name, ani_ci_name, ani_description, ani_weight, ani_height, ani_length, ani_cla_id)
-VALUES (
-           'Arara-escarlate', 'Ara macao',
-           'A cor da íris muda com a idade, sendo castanha nos juvenis e amarela nos adultos. As penas supra-alares são amarelas marginadas a verde e a extremidade das asas é azul. Esta disposição das cores, permite distingui-la de outras espécies de araras, em especial da Arara-de-asa-verde (Ara chloropterus).',
-           1.2, 0, 86, 6
-       );
-
--- Arara-jacinta
-INSERT INTO animal (ani_name, ani_ci_name, ani_description, ani_weight, ani_height, ani_length, ani_cla_id)
-VALUES (
-           'Arara-jacinta', 'Anodorhynchus hyacinthinus',
-           'É a maior espécie de Arara. A coloração forte em azul-cobalto, contrastante com a pele nua amarela em torno dos olhos e da mandíbula inferior distingue-a de todas as outras. O bico é grande, preto e particularmente encurvado e pontiagudo.',
-           1.5, 0, 100, 6
-       );
-
-
-/**************** INSERT INTO AREA TABLE  ****************/
-/****************    Tabela Obrigatória   ****************/
-INSERT INTO area (area_name) VALUES
-                                 ('Bosque'),
-                                 ('Golfinhos'),
-                                 ('Primatas'),
-                                 ('Savana'),
-                                 ('Amazonia'),
-                                 ('Selva'),
-                                 ('Vale dos Tigres');
+-- ANIMAIS (Destinos)
+('Vale dos Tigres', 38.7432704, -9.1711608, 1, 5, 'ANIMAL'),
+('Tigres Brancos', 38.744536, -9.1706392, 1, 3, 'ANIMAL'),
+('Rinocerontes Brancos', 38.7443442, -9.1703226, 1, 4, 'ANIMAL'),
+('Pequenos Primatas', 38.7441465, -9.1707578, 1, 10, 'ANIMAL'),
+('Ilha dos Macacos', 38.7438071, -9.1704214, 1, 15, 'ANIMAL'),
+('Áxis e Veado', 38.742928, -9.1715755, 1, 8, 'ANIMAL'),
+('Bongos', 38.7428199, -9.1717875, 1, 4, 'ANIMAL'),
+('Koalas e Cangurus', 38.7432588, -9.1718274, 1, 6, 'ANIMAL'),
+('Bisonte-americano', 38.742841, -9.1724858, 1, 5, 'ANIMAL'),
+('Búfalos', 38.7429355, -9.1726818, 1, 6, 'ANIMAL'),
+('Tartaruga-gigante', 38.742979, -9.172862, 1, 3, 'ANIMAL'),
+('Aligátor-americano', 38.7431357, -9.1724443, 1, 4, 'ANIMAL'),
+('Rinocerontes-indianos', 38.7433744, -9.172159, 1, 2, 'ANIMAL'),
+('Suricatas', 38.7435261, -9.1724172, 1, 12, 'ANIMAL'),
+('Girafas', 38.744016, -9.1725065, 1, 5, 'ANIMAL'),
+('Órix-austral', 38.7437922, -9.1720426, 1, 5, 'ANIMAL'),
+('Elandes', 38.7438506, -9.1715994, 1, 6, 'ANIMAL'),
+('Panda-vermelho', 38.7442037, -9.1720043, 1, 2, 'ANIMAL'),
+('Hipopótamos', 38.7442932, -9.1723487, 1, 3, 'ANIMAL'),
+('Lémures', 38.744425, -9.1725352, 1, 10, 'ANIMAL'),
+('Ilha dos Lémures', 38.7444312, -9.172151, 1, 10, 'ANIMAL'),
+('Elefantes-africanos', 38.7447806, -9.1729194, 1, 3, 'ANIMAL'),
+('Leões', 38.7450277, -9.1724427, 1, 4, 'ANIMAL'),
+('Flamingo-rubro', 38.7447194, -9.1724379, 1, 30, 'ANIMAL'),
+('Chimpanzé', 38.7447904, -9.171235, 1, 6, 'ANIMAL'),
+('Gorilas', 38.7447392, -9.1712232, 1, 4, 'ANIMAL'),
+('Pumas', 38.744963, -9.1706668, 1, 2, 'ANIMAL'),
+('Serval', 38.7450389, -9.1710972, 1, 2, 'ANIMAL'),
+('Leopardo-da-pérsia', 38.7451831, -9.1709506, 1, 2, 'ANIMAL'),
+('Leopardo-das-neves', 38.7452328, -9.1712997, 1, 2, 'ANIMAL'),
+('Lince-euro-asiático', 38.7453273, -9.1711546, 1, 2, 'ANIMAL'),
+('Babuíno-hamadrias', 38.7453845, -9.1705393, 1, 8, 'ANIMAL'),
+('Adaxes', 38.7455325, -9.1707593, 1, 6, 'ANIMAL'),
+('Chitas', 38.7454653, -9.1727152, 1, 2, 'ANIMAL'),
+('Okapis', 38.7453186, -9.1734342, 1, 2, 'ANIMAL'),
+('Reptilário', 38.743255, -9.172581, 1, 40, 'ANIMAL'),
+('Templo dos Primatas', 38.744672, -9.171407, 1, 20, 'ANIMAL'),
+('Baía dos Golfinhos', 38.742597, -9.170947, 1, 4, 'ANIMAL'),
+('Ursos-pardos', 38.746050, -9.170526, 1, 2, 'ANIMAL'),
+('Pelicanos', 38.744455, -9.170010, 1, 10, 'ANIMAL'),
+('Encosta dos Felinos', 38.745222, -9.171105, 1, 8, 'ANIMAL'),
+('Aldeia dos Macacos', 38.743963, -9.171033, 1, 15, 'ANIMAL'),
+('Palácio das Araras', 38.743691, -9.171244, 1, 10, 'ANIMAL'),
+('Leões-marinhos', 38.744100, -9.171427, 1, 5, 'ANIMAL'),
+('Pinguins-do-cabo', 38.744220, -9.171265, 1, 20, 'ANIMAL'),
+('Aves Exóticas', 38.743777, -9.171306, 1, 15, 'ANIMAL'),
+('Aviário Asiático', 38.742973, -9.171377, 1, 10, 'ANIMAL'),
+('Parque Arco-Íris', 38.742605, -9.172331, 1, 10, 'ANIMAL'),
+('Lince-ibérico', 38.7460401, -9.1709958, 1, 2, 'ANIMAL'),
+('Muntjac-chinês', 38.7440669, -9.1721574, 1, 4, 'ANIMAL'),
+('Palanca-ruana', 38.7457426, -9.1719899, 1, 5, 'ANIMAL'),
+('Palanca-negra', 38.7457028, -9.1725845, 1, 5, 'ANIMAL'),
+('Colobo-guereza', 38.7447392, -9.1712232, 1, 6, 'ANIMAL');
 
 
-/**************** INSERT INTO SUB_AREA TABLE  ****************/
-/****************    Tabela Obrigatória       ****************/
-INSERT INTO sub_area (sa_area_id, sa_name) VALUES
-                                               (1, 'Bosque Encantado'),
-                                               (1, 'Tapada do Lince-ibérico'),
-                                               (2, 'Jardim das Araras'),
-                                               (3, 'Templo dos Primatas'),
-                                               (4, 'Savana MEO'),
-                                               (5, 'Penguin Pool'),
-                                               (6, 'Reptilário'),
-                                               (7, 'Vale dos Tigres');
+-- ==================================================================================
+-- 5. ANIMAIS (COM URLS DA INTERNET e DESCRIÇÕES TOP)
+-- ==================================================================================
+
+INSERT INTO animal (ani_name, ani_ci_name, ani_description, ani_weight, ani_height, ani_length, ani_cla_id, imageurl) VALUES
+
+                                                                                                                          ('Tigre da Sibéria', 'Panthera tigris altaica', 'O maior felino do mundo. Possui uma pelagem laranja com riscas pretas e adapta-se bem a climas frios. Encontra-se no Vale dos Tigres.', 300, 110, 330, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/23/Siberian_Tiger_sf.jpg/640px-Siberian_Tiger_sf.jpg'),
+
+                                                                                                                          ('Tigre Branco', 'Panthera tigris', 'Uma variação rara de cor do tigre de Bengala, causada por um gene recessivo. Possui olhos azuis e nariz rosado. Não é albino.', 220, 100, 300, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/White_Tiger_6_%28cropped%29.jpg/640px-White_Tiger_6_%28cropped%29.jpg'),
+
+                                                                                                                          ('Leão Africano', 'Panthera leo', 'Conhecido como o rei da selva. Os machos distinguem-se pela sua juba imponente. Vivem em bandos sociais complexos liderados por fêmeas.', 190, 120, 250, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/73/Lion_waiting_in_Namibia.jpg/640px-Lion_waiting_in_Namibia.jpg'),
+
+                                                                                                                          ('Golfinho Roaz', 'Tursiops truncatus', 'Mamífero marinho extremamente inteligente e social. Usa ecolocalização para caçar e comunicar. Estrela da Baía dos Golfinhos.', 300, 0, 400, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Tursiops_truncatus_01.jpg/640px-Tursiops_truncatus_01.jpg'),
+
+                                                                                                                          ('Elefante Africano', 'Loxodonta africana', 'O maior mamífero terrestre do planeta. As suas grandes orelhas ajudam a regular a temperatura corporal e as presas são de marfim.', 6000, 330, 700, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bf/African_Elephant_%28Loxodonta_africana%29_male_%2817289351312%29.jpg/640px-African_Elephant_%28Loxodonta_africana%29_male_%2817289351312%29.jpg'),
+
+                                                                                                                          ('Girafa', 'Giraffa camelopardalis', 'O animal mais alto do mundo. Dorme apenas cerca de 30 minutos por dia. A sua língua azul e preênsil pode medir até 50cm.', 1200, 550, 0, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/Giraffe_standing.jpg/640px-Giraffe_standing.jpg'),
+
+                                                                                                                          ('Chimpanzé', 'Pan troglodytes', 'O nosso parente vivo mais próximo, partilhando 98% do ADN. Usa ferramentas como pedras e paus para obter alimento.', 60, 120, 0, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/62/Schimpanse_Zoo_Leipzig.jpg/640px-Schimpanse_Zoo_Leipzig.jpg'),
+
+                                                                                                                          ('Gorila', 'Gorilla gorilla', 'O maior primata existente. Apesar da sua força colossal, é um gigante gentil e vegetariano que vive em grupos familiares.', 180, 170, 0, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bb/Gorilla_Lorraine_02.jpg/640px-Gorilla_Lorraine_02.jpg'),
+
+                                                                                                                          ('Koala', 'Phascolarctos cinereus', 'Marsupial australiano que passa a maior parte do dia a dormir para digerir as folhas tóxicas de eucalipto.', 12, 70, 0, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/49/Koala_climbing_tree.jpg/640px-Koala_climbing_tree.jpg'),
+
+                                                                                                                          ('Panda Vermelho', 'Ailurus fulgens', 'Pequeno mamífero dos Himalaias. É solitário, arborícola e usa a cauda felpuda para se equilibrar e aquecer.', 5, 25, 50, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Red_Panda_%2825193861686%29.jpg/640px-Red_Panda_%2825193861686%29.jpg'),
+
+                                                                                                                          ('Lémure de Cauda Anelada', 'Lemur catta', 'Endémico de Madagáscar. Reconhecível pela cauda com anéis pretos e brancos. Adora apanhar banhos de sol.', 3, 40, 0, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/06/Ring-tailed_lemur_%28Lemur_catta%29.jpg/640px-Ring-tailed_lemur_%28Lemur_catta%29.jpg'),
+
+                                                                                                                          ('Pinguim do Cabo', 'Spheniscus demersus', 'A única espécie de pinguim que se reproduz em África. Conhecido pelo seu "smoking" natural e som semelhante a um burro.', 3, 60, 0, 2, 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/Mancot_01.jpg/640px-Mancot_01.jpg'),
+
+                                                                                                                          ('Urso Pardo', 'Ursus arctos', 'Um grande omnívoro poderoso. Prepara-se para o inverno acumulando grandes reservas de gordura para hibernar.', 400, 150, 200, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/2010-kodiak-bear-1.jpg/640px-2010-kodiak-bear-1.jpg'),
+
+                                                                                                                          ('Rinoceronte Branco', 'Ceratotherium simum', 'O segundo maior mamífero terrestre. O nome vem de um erro de tradução ("wijde" - boca larga). Tem dois cornos de queratina.', 2300, 180, 400, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/ba/White_Rhino_at_Kigio_Wildlife_Conservancy.jpg/640px-White_Rhino_at_Kigio_Wildlife_Conservancy.jpg'),
+
+                                                                                                                          ('Hipopótamo', 'Hippopotamus amphibius', 'Passa o dia na água para proteger a pele. Apesar do peso, corre mais rápido que um humano e é muito territorial.', 1500, 150, 450, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Hippopotamus_amphibius_-_01.jpg/640px-Hippopotamus_amphibius_-_01.jpg'),
+
+                                                                                                                          ('Lince Ibérico', 'Lynx pardinus', 'O felino mais ameaçado do mundo, exclusivo da Península Ibérica. Alimenta-se quase exclusivamente de coelhos.', 13, 50, 90, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Iberian_Lynx_cub_and_adult.jpg/640px-Iberian_Lynx_cub_and_adult.jpg'),
+
+                                                                                                                          ('Suricata', 'Suricata suricatta', 'Pequeno mamífero famoso por ficar de pé a vigiar o território. Vive em colónias subterrâneas cooperativas.', 0.7, 25, 0, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/Suricata_suricatta_2.jpg/640px-Suricata_suricatta_2.jpg'),
+
+                                                                                                                          ('Aligátor Americano', 'Alligator mississippiensis', 'Grande réptil dos pântanos. Distingue-se do crocodilo pelo focinho em forma de U e dentes inferiores escondidos.', 300, 0, 400, 3, 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/32/Alligator_mississippiensis_-_Oasis_Park_-_13.jpg/640px-Alligator_mississippiensis_-_Oasis_Park_-_13.jpg'),
+
+                                                                                                                          ('Arara Azul e Amarela', 'Ara ararauna', 'Papagaio grande e colorido da América do Sul. Muito inteligente e vocal, pode viver até 70 anos.', 1.1, 0, 85, 2, 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/Ara_ararauna_Luc_Viatour.jpg/640px-Ara_ararauna_Luc_Viatour.jpg'),
+
+                                                                                                                          ('Bongo', 'Tragelaphus eurycerus', 'Antílope florestal noturno com pelagem castanha avermelhada e riscas brancas para camuflagem na floresta densa.', 250, 120, 200, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/Bongo_antelope_arp.jpg/640px-Bongo_antelope_arp.jpg'),
+
+                                                                                                                          ('Okapi', 'Okapia johnstoni', 'Parente vivo mais próximo da girafa, embora pareça uma zebra nas pernas. Tem uma língua azul muito longa.', 250, 150, 250, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Okapi2.jpg/640px-Okapi2.jpg'),
+
+                                                                                                                          ('Ádax', 'Addax nasomaculatus', 'Antílope do deserto do Saara. A sua pelagem muda de cor com as estações (branca no verão, castanha no inverno).', 100, 105, 160, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9d/Addax_nasomaculatus_at_Marwell_Wildlife.jpg/640px-Addax_nasomaculatus_at_Marwell_Wildlife.jpg'),
+
+                                                                                                                          ('Bisonte Americano', 'Bison bison', 'O gigante da pradaria norte-americana. A sua cabeça massiça funciona como limpa-neves no inverno.', 900, 180, 300, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/American_bison_k5680-1.jpg/640px-American_bison_k5680-1.jpg'),
+
+                                                                                                                          ('Búfalo Africano', 'Syncerus caffer', 'Conhecido pela sua "armadura" de cornos fundidos na cabeça. Um dos animais mais temidos de África.', 700, 150, 300, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Syncerus_caffer_caffer_male_Kruger.jpg/640px-Syncerus_caffer_caffer_male_Kruger.jpg'),
+
+                                                                                                                          ('Tartaruga Gigante', 'Aldabrachelys gigantea', 'Uma das maiores tartarugas do mundo. Pode viver mais de 150 anos e pesa tanto como um leão.', 250, 60, 120, 3, 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Aldabra_Giant_Tortoise_Geochelone_gigantea.jpg/640px-Aldabra_Giant_Tortoise_Geochelone_gigantea.jpg'),
+
+                                                                                                                          ('Canguru Vermelho', 'Osphranter rufus', 'O maior marsupial do mundo. Usa a cauda robusta como terceira perna para equilíbrio.', 85, 150, 0, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/Red_kangaroo_-_Sascha_Unger.jpg/640px-Red_kangaroo_-_Sascha_Unger.jpg'),
+
+                                                                                                                          ('Muntjac Chinês', 'Muntiacus reevesi', 'Pequeno veado conhecido como "veado-ladrador" pelo som que faz. Os machos têm dentes caninos alongados.', 15, 50, 0, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/Muntiacus_reevesi_in_Japan.jpg/640px-Muntiacus_reevesi_in_Japan.jpg'),
+
+                                                                                                                          ('Palanca Negra', 'Hippotragus niger', 'Um dos antílopes mais majestosos de África, com cornos curvos em forma de cimitarra. Símbolo de Angola.', 230, 140, 0, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/Sable_antelope_%28Hippotragus_niger%29_adult_male.jpg/640px-Sable_antelope_%28Hippotragus_niger%29_adult_male.jpg'),
+
+                                                                                                                          ('Colobo Guereza', 'Colobus guereza', 'Macaco arborícola preto e branco com uma cauda longa. Não tem polegares, o que ajuda a saltar entre ramos.', 10, 60, 0, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/23/Mantled_guereza_%28Colobus_guereza%29.jpg/640px-Mantled_guereza_%28Colobus_guereza%29.jpg'),
+
+                                                                                                                          ('Chita', 'Acinonyx jubatus', 'O animal terrestre mais rápido, atingindo 110km/h. Não ruge, mas mia e ronrona como um gato.', 50, 80, 130, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/TheCheethcat.jpg/640px-TheCheethcat.jpg'),
+
+                                                                                                                          ('Babuíno Hamadrias', 'Papio hamadryas', 'Primata social que era sagrado no Antigo Egito. Os machos têm uma juba prateada impressionante.', 25, 70, 0, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/77/Babouin_hamadryas_M_singe.jpg/640px-Babouin_hamadryas_M_singe.jpg'),
+
+                                                                                                                          ('Pelicano', 'Pelecanus onocrotalus', 'Ave aquática com uma enorme bolsa no bico que pode conter 13 litros de água e peixe.', 10, 0, 160, 2, 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Pelecanus_onocrotalus_1.jpg/640px-Pelecanus_onocrotalus_1.jpg'),
+
+                                                                                                                          ('Leopardo da Pérsia', 'Panthera pardus saxicolor', 'Uma das maiores subespécies de leopardo. Mestre da camuflagem e força, sobe árvores com presas pesadas.', 70, 70, 150, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/Persian_Leopard_sitting.jpg/640px-Persian_Leopard_sitting.jpg'),
+
+                                                                                                                          ('Serval', 'Leptailurus serval', 'Felino de pernas longas e orelhas grandes que funcionam como radares. Salta 3 metros para apanhar aves.', 15, 60, 90, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d2/Serval_semiprofil.jpg/640px-Serval_semiprofil.jpg'),
+
+                                                                                                                          ('Órix', 'Oryx gazella', 'O "unicórnio" do deserto devido aos cornos longos e retos. Consegue sobreviver semanas sem água.', 200, 120, 0, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/Gemsbok_Oryx_gazella.jpg/640px-Gemsbok_Oryx_gazella.jpg'),
+
+                                                                                                                          ('Rinoceronte Indiano', 'Rhinoceros unicornis', 'Distingue-se pela pele com dobras que parece uma armadura e por ter apenas um corno.', 2000, 170, 350, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Indian_Rhinoceros_Rhinoceros_unicornis.jpg/640px-Indian_Rhinoceros_Rhinoceros_unicornis.jpg'),
+
+                                                                                                                          ('Puma', 'Puma concolor', 'Também chamado de leão-da-montanha. Tem a maior distribuição de qualquer mamífero nas Américas.', 80, 70, 150, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1c/Puma_Face.jpg/640px-Puma_Face.jpg'),
+
+                                                                                                                          ('Águia das Estepes', 'Aquila nipalensis', 'Ave de rapina migratória. O canto da boca vai até atrás do olho, parecendo um sorriso.', 3.2, 76, 0, 2, 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/88/Steppe_Eagle.jpg/640px-Steppe_Eagle.jpg'),
+
+                                                                                                                          ('Anaconda Amarela', 'Eunectes notaeus', 'Serpente constritora não venenosa. Segunda maior boa da América do Sul, excelente nadadora.', 30, 0, 350, 3, 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/Eunectes_notaeus01.jpg/640px-Eunectes_notaeus01.jpg'),
+
+                                                                                                                          ('Araçari Verde', 'Pteroglossus viridis', 'O membro mais pequeno da família dos tucanos. Apresenta cores diferentes entre macho e fêmea.', 0.13, 0, 35, 2, 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/Green_Aracari-2.jpg/640px-Green_Aracari-2.jpg'),
+
+                                                                                                                          ('Arara de Asa Verde', 'Ara chloropterus', 'Muitas vezes confundida com a arara escarlate, mas tem riscas verdes nas asas e linhas vermelhas na face.', 1.5, 0, 92, 2, 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/90/Ara_chloropterus_-Vogelburg_Weilrod%2C_Taunus%2C_Germany-8a.jpg/640px-Ara_chloropterus_-Vogelburg_Weilrod%2C_Taunus%2C_Germany-8a.jpg'),
+
+                                                                                                                          ('Arara de Fronte Vermelha', 'Ara rubrogenys', 'Espécie rara da Bolívia. Vive em penhascos áridos e catos, ao contrário de outras araras de floresta.', 0.55, 0, 60, 2, 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/Ara_rubrogenys_-upper_body-8a.jpg/640px-Ara_rubrogenys_-upper_body-8a.jpg'),
+
+                                                                                                                          ('Arara Escarlate', 'Ara macao', 'Ave de cores vibrantes (vermelho, amarelo, azul). Muito social e barulhenta na floresta tropical.', 1.2, 0, 86, 2, 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Ara_macao_qtl3.jpg/640px-Ara_macao_qtl3.jpg'),
+
+                                                                                                                          ('Arara Jacinta', 'Anodorhynchus hyacinthinus', 'A maior de todas as araras. O seu bico é tão forte que parte cocos. Tem uma cor azul-cobalto incrível.', 1.5, 0, 100, 2, 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/66/Anodorhynchus_hyacinthinus_-Hyacinth_Macaw_-side_of_head.jpg/640px-Anodorhynchus_hyacinthinus_-Hyacinth_Macaw_-side_of_head.jpg');
 
 
-/**************** INSERT INTO ENCLOSURE TABLE  ****************/
-/****************    Tabela Obrigatória        ****************/
-INSERT INTO enclosure (enc_name, enc_sup_amount, enc_aniclass, enc_lat, enc_long, enc_sa_id) VALUES
-                                                                                                 ('Ádax Enclosure', 3, 'Mammalia', 38.74396839000615, -9.171871631797405, 1),
-                                                                                                 ('Águia-das-estepes', 5, 'Mammalia', 38.74580414864982, -9.170655686925214, 2),
-                                                                                                 ('Monkey Forest', 20, 'Primates', -1.2945, 36.8230, 3),
-                                                                                                 ('Reptile House', 15, 'Reptilia', 38.743183138815155, -9.171808981799186, 4),
-                                                                                                 ('Araras Enclosure', 12, 'Aves', 38.74370192232754, -9.171473684223452, 5),
-                                                                                                 ('Shark Aquarium', 2, 'Pisces', -1.2970, 36.8260, 7),
-                                                                                                 ('Frog Swamp', 30, 'Amphibia', -1.2980, 36.8270, 6),
-                                                                                                 ('Arctic Exhibit', 4, 'Mammalia', -1.2990, 36.8280, 5);
+-- ==================================================================================
+-- 6. LIGAÇÃO ANIMAL -> LOCAL (TABELA AE)
+-- ==================================================================================
+
+INSERT INTO ae (ae_ani_id, ae_enc_id, ae_dt_in, ae_dt_out, ae_code)
+SELECT a.ani_id, e.enc_id, NOW(), NULL, 'ZOO-' || a.ani_id
+FROM animal a, enclosure e
+WHERE
+    (a.ani_name LIKE '%Tigre da Sibéria%' AND e.enc_name LIKE '%Vale dos Tigres%') OR
+    (a.ani_name LIKE '%Tigre Branco%' AND e.enc_name LIKE '%Tigres Brancos%') OR
+    (a.ani_name LIKE '%Leão%' AND e.enc_name = 'Leões') OR
+    (a.ani_name LIKE '%Golfinho%' AND e.enc_name LIKE '%Golfinhos%') OR
+    (a.ani_name LIKE '%Elefante%' AND e.enc_name LIKE '%Elefantes%') OR
+    (a.ani_name LIKE '%Girafa%' AND e.enc_name = 'Girafas') OR
+    (a.ani_name LIKE '%Chimpanzé%' AND e.enc_name = 'Chimpanzé') OR
+    (a.ani_name LIKE '%Gorila%' AND e.enc_name LIKE '%Gorilas%') OR
+    (a.ani_name LIKE '%Koala%' AND e.enc_name LIKE '%Koalas%') OR
+    (a.ani_name LIKE '%Panda%' AND e.enc_name LIKE '%Panda%') OR
+    (a.ani_name LIKE '%Lémure%' AND e.enc_name LIKE '%Lémures%') OR
+    (a.ani_name LIKE '%Pinguim%' AND e.enc_name LIKE '%Pinguins%') OR
+    (a.ani_name LIKE '%Urso Pardo%' AND e.enc_name LIKE '%Ursos%') OR
+    (a.ani_name LIKE '%Rinoceronte Branco%' AND e.enc_name LIKE '%Rinocerontes Brancos%') OR
+    (a.ani_name LIKE '%Hipopótamo%' AND e.enc_name LIKE '%Hipopótamos%') OR
+    (a.ani_name LIKE '%Lince%' AND e.enc_name LIKE '%Lince%') OR
+    (a.ani_name LIKE '%Suricata%' AND e.enc_name LIKE '%Suricatas%') OR
+    (a.ani_name LIKE '%Aligátor%' AND e.enc_name LIKE '%Aligátor%') OR
+    (a.ani_name LIKE '%Bongo%' AND e.enc_name LIKE '%Bongos%') OR
+    (a.ani_name LIKE '%Okapi%' AND e.enc_name LIKE '%Okapis%') OR
+    (a.ani_name LIKE '%Ádax%' AND e.enc_name LIKE '%Adaxes%') OR
+    (a.ani_name LIKE '%Bisonte%' AND e.enc_name LIKE '%Bisonte%') OR
+    (a.ani_name LIKE '%Búfalo%' AND e.enc_name LIKE '%Búfalos%') OR
+    (a.ani_name LIKE '%Tartaruga%' AND e.enc_name LIKE '%Tartaruga%') OR
+    (a.ani_name LIKE '%Canguru%' AND e.enc_name LIKE '%Cangurus%') OR
+    (a.ani_name LIKE '%Muntjac%' AND e.enc_name LIKE '%Muntjac%') OR
+    (a.ani_name LIKE '%Palanca%' AND e.enc_name LIKE '%Palanca%') OR
+    (a.ani_name LIKE '%Colobo%' AND e.enc_name LIKE '%Colobo%') OR
+    (a.ani_name LIKE '%Chita%' AND e.enc_name LIKE '%Chitas%') OR
+    (a.ani_name LIKE '%Babuíno%' AND e.enc_name LIKE '%Babuíno%') OR
+    (a.ani_name LIKE '%Pelicano%' AND e.enc_name LIKE '%Pelicanos%') OR
+    (a.ani_name LIKE '%Leopardo%' AND e.enc_name LIKE '%Leopardo%') OR
+    (a.ani_name LIKE '%Serval%' AND e.enc_name LIKE '%Serval%') OR
+    (a.ani_name LIKE '%Órix%' AND e.enc_name LIKE '%Órix%') OR
+    (a.ani_name LIKE '%Rino%Indiano%' AND e.enc_name LIKE '%Rinocerontes-indianos%') OR
+    (a.ani_name LIKE '%Puma%' AND e.enc_name LIKE '%Pumas%') OR
+    (a.ani_name LIKE '%Águia%' AND e.enc_name LIKE '%Aves Exóticas%') OR
+    (a.ani_name LIKE '%Anaconda%' AND e.enc_name LIKE '%Reptilário%') OR
+    (a.ani_name LIKE '%Araçari%' AND e.enc_name LIKE '%Aves Exóticas%') OR
+    (a.ani_name LIKE '%Arara%' AND e.enc_name LIKE '%Palácio das Araras%');
 
 
-/**************** INSERT INTO AE TABLE  ****************/
-/****************   Tabela Obrigatória  ****************/
-INSERT INTO ae (ae_ani_id, ae_enc_id, ae_dt_in, ae_dt_out, ae_code) VALUES
-                                                                        (1, 1, '2024-11-22 10:00:00', '2024-11-22 12:00:00', 'HEJXCB9B'),
-                                                                        (2, 2, '2024-11-22 11:30:00', '2024-11-22 13:30:00', 'NCBJ1ZBH'),
-                                                                        (3, 3, '2024-11-22 12:00:00', '2024-11-22 14:00:00', 'VRSXC3JV'),
-                                                                        (4, 4, '2024-11-22 13:15:00', '2024-11-22 15:15:00', 'WUBACTCL'),
-                                                                        (5, 5, '2024-11-22 14:45:00', '2024-11-22 16:45:00', 'OBN7YYXK'),
-                                                                        (6, 6, '2024-11-22 15:30:00', '2024-11-22 17:30:00', 'NHNQJ6S2'),
-                                                                        (7, 7, '2024-11-22 16:15:00', '2024-11-22 18:15:00', 'FGZH8UYR'),
-                                                                        (8, 8, '2024-11-22 17:00:00', '2024-11-22 19:00:00', 'Q2UISYOI'),
-                                                                        (9, 7, '2024-11-22 16:30:00', '2024-11-22 18:30:00', '3SKCADAK'),
-                                                                        (10, 8, '2024-11-22 17:30:00', '2024-11-22 19:30:00', 'ZJFTFBVZ');
+-- ==================================================================================
+-- 7. DADOS EXTRA
+-- ==================================================================================
 
-
-/**************** INSERT INTO ACTIVITY TABLE  ****************/
-/****************    Tabela Obrigatória       ****************/
-INSERT INTO activity (ac_name, ac_schedule, ac_cap, ac_area_id) VALUES
-                                                                    ('Baía dos golfinhos', '2024-11-23 10:00:00', 100, 2),
-                                                                    ('Comboio do Zoo', '2024-11-23 12:00:00', 40, 2),
-                                                                    ('Teleférico', '2024-11-23 14:00:00', 2, 5),
-                                                                    ('Bosque Encantado', '2024-11-23 11:00:00', 50, 1),
-                                                                    ('Pelicanos', '2024-11-23 15:00:00', 50, 3),
-                                                                    ('Quintinha do Lidl', '2024-11-23 16:00:00', 30, 5);
-
-
-/**************** INSERT INTO PERSON TABLE  ****************/
-/****************   Tabela Obrigatória      ****************/
 INSERT INTO person (per_name, per_email, per_password, per_gender, per_points) VALUES
-                                                                                   ('Alice Johnson', 'alice@example.com', 'alice123', 'F', 0),
-                                                                                   ('Bob Smith', 'bob@example.com', 'bob123', 'M', 0),
-                                                                                   ('Charlie Brown', 'charlie@example.com', 'charlie123', 'M', 0),
-                                                                                   ('Diana Prince', 'diana@example.com', 'diana123', 'F', 0),
-                                                                                   ('Edward Stark', 'edward@example.com', 'edward123', 'M', 0),
-                                                                                   ('Fiona Green', 'fiona@example.com', 'fiona123', 'F', 0),
-                                                                                   ('George Wilson', 'george@example.com', 'george123', 'M', 0),
-                                                                                   ('Helen Carter', 'helen@example.com', 'helen123', 'F', 0);
+                                                                                   ('Visitante Demo', 'visitante@zoo.pt', '1234', 'F', 50),
+                                                                                   ('Admin Zoo', 'admin@zoo.pt', 'admin', 'M', 999);
 
+INSERT INTO activity (ac_name, ac_schedule, ac_cap, ac_area_id) VALUES
+                                                                    ('Alimentação dos Pelicanos', NOW() + INTERVAL '1 day', 50, 1),
+                                                                    ('Apresentação dos Golfinhos', NOW() + INTERVAL '2 hours', 200, 1);
 
-/**************** INSERT INTO VISITED TABLE  ****************/
-/****************   Tabela Não Obrigatória  ****************/
-INSERT INTO visited (vi_per_id, vi_sa_id, vi_dtime) VALUES
-                                                        (1, 1, '2024-11-22 10:00:00'),
-                                                        (2, 2, '2024-11-22 11:30:00'),
-                                                        (3, 3, '2024-11-22 12:00:00'),
-                                                        (4, 4, '2024-11-22 13:15:00'),
-                                                        (5, 5, '2024-11-22 14:45:00'),
-                                                        (6, 6, '2024-11-22 15:30:00'),
-                                                        (7, 7, '2024-11-22 16:15:00'),
-                                                        (8, 5, '2024-11-22 17:00:00');
+INSERT INTO kiosk (kio_name, kio_area_id) VALUES ('Quiosque Principal', 1), ('Gelados Olá', 1);
 
-
-/**************** INSERT INTO FAVORITE TABLE  ****************/
-/****************   Tabela Não Obrigatória  ****************/
-INSERT INTO favorite (fav_ani_id, fav_per_id) VALUES
-                                                  (1, 1),
-                                                  (1, 2),
-                                                  (2, 3),
-                                                  (3, 4),
-                                                  (2, 5),
-                                                  (4, 6),
-                                                  (1, 8);
-
-
-/**************** INSERT INTO KIOSK TABLE  ****************/
-/****************   Tabela Obrigatória  ****************/
-INSERT INTO kiosk (kio_name, kio_area_id) VALUES
-                                              ('Gelados Olá', 1),
-                                              ('Gelados Olá', 2),
-                                              ('Snack Bar', 3),
-                                              ('Snack Bar', 5),
-                                              ('Gelados Olá', 6);
-
-
-/**************** INSERT INTO PRODUCT TABLE  ****************/
-/****************   Tabela Obrigatória       ****************/
 INSERT INTO product (pro_name, pro_barcode, pro_price) VALUES
-                                                           ('Water Bottle', 1234567890123, 2.50),
-                                                           ('Chips Pack', 1234567890124, 1.75),
-                                                           ('Soda Can', 1234567890125, 1.25),
-                                                           ('Sandwich', 1234567890126, 3.50),
-                                                           ('Fruit Cup', 1234567890127, 2.00),
-                                                           ('Candy Bar', 1234567890128, 1.00),
-                                                           ('Ice Cream', 1234567890129, 2.75),
-                                                           ('Popcorn', 1234567890130, 1.50);
+                                                           ('Garrafa de Água 50cl', 1001, 1.50), ('Gelado', 1002, 2.50);
 
+INSERT INTO stock (stock_amount, stock_kio_id, stock_pro_id) VALUES (50, 1, 1), (50, 1, 2);
 
-/**************** INSERT INTO STOCK TABLE  ****************/
-/****************   Tabela Obrigatória     ****************/
-INSERT INTO stock (stock_amount, stock_kio_id, stock_pro_id) VALUES
-                                                                 (100, 1, 1),
-                                                                 (150, 2, 2),
-                                                                 (200, 3, 3),
-                                                                 (60, 4, 5),
-                                                                 (110, 5, 6);
+INSERT INTO favorite (fav_ani_id, fav_per_id, fav_animal) VALUES (1, 1, 'true');
 
--- Criar usuário de replicação se não existir
-DO $$
-    BEGIN
-        IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = 'replicator') THEN
-            CREATE ROLE replicator WITH REPLICATION LOGIN PASSWORD 'ThZ3d1112';
-        END IF;
-    END
-$$;
-
--- Conceder permissões
-GRANT CONNECT ON DATABASE postgres TO replicator;
-GRANT USAGE ON SCHEMA zoopolis TO replicator;
-GRANT SELECT ON ALL TABLES IN SCHEMA zoopolis TO replicator;
-
--- Criar replication slot
-SELECT pg_create_physical_replication_slot('replica_slot', true);
-
+SELECT 'Base de Dados ZOOPOLIS reconstruída com SUCESSO (Com URLs da Internet)!' as status;

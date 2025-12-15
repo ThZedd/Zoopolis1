@@ -225,98 +225,54 @@ INSERT INTO enclosure (enc_name, enc_lat, enc_long, enc_sa_id, enc_sup_amount, e
 -- 5. ANIMAIS (COM URLS DA INTERNET e DESCRIÇÕES TOP)
 -- ==================================================================================
 
+
+
+-- Inserir com os nomes EXATOS da tua pasta drawable (com o prefixo 'animal_')
 INSERT INTO animal (ani_name, ani_ci_name, ani_description, ani_weight, ani_height, ani_length, ani_cla_id, imageurl) VALUES
-
-                                                                                                                          ('Tigre da Sibéria', 'Panthera tigris altaica', 'O maior felino do mundo. Possui uma pelagem laranja com riscas pretas e adapta-se bem a climas frios. Encontra-se no Vale dos Tigres.', 300, 110, 330, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/23/Siberian_Tiger_sf.jpg/640px-Siberian_Tiger_sf.jpg'),
-
-                                                                                                                          ('Tigre Branco', 'Panthera tigris', 'Uma variação rara de cor do tigre de Bengala, causada por um gene recessivo. Possui olhos azuis e nariz rosado. Não é albino.', 220, 100, 300, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/White_Tiger_6_%28cropped%29.jpg/640px-White_Tiger_6_%28cropped%29.jpg'),
-
-                                                                                                                          ('Leão Africano', 'Panthera leo', 'Conhecido como o rei da selva. Os machos distinguem-se pela sua juba imponente. Vivem em bandos sociais complexos liderados por fêmeas.', 190, 120, 250, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/73/Lion_waiting_in_Namibia.jpg/640px-Lion_waiting_in_Namibia.jpg'),
-
-                                                                                                                          ('Golfinho Roaz', 'Tursiops truncatus', 'Mamífero marinho extremamente inteligente e social. Usa ecolocalização para caçar e comunicar. Estrela da Baía dos Golfinhos.', 300, 0, 400, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Tursiops_truncatus_01.jpg/640px-Tursiops_truncatus_01.jpg'),
-
-                                                                                                                          ('Elefante Africano', 'Loxodonta africana', 'O maior mamífero terrestre do planeta. As suas grandes orelhas ajudam a regular a temperatura corporal e as presas são de marfim.', 6000, 330, 700, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bf/African_Elephant_%28Loxodonta_africana%29_male_%2817289351312%29.jpg/640px-African_Elephant_%28Loxodonta_africana%29_male_%2817289351312%29.jpg'),
-
-                                                                                                                          ('Girafa', 'Giraffa camelopardalis', 'O animal mais alto do mundo. Dorme apenas cerca de 30 minutos por dia. A sua língua azul e preênsil pode medir até 50cm.', 1200, 550, 0, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/Giraffe_standing.jpg/640px-Giraffe_standing.jpg'),
-
-                                                                                                                          ('Chimpanzé', 'Pan troglodytes', 'O nosso parente vivo mais próximo, partilhando 98% do ADN. Usa ferramentas como pedras e paus para obter alimento.', 60, 120, 0, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/62/Schimpanse_Zoo_Leipzig.jpg/640px-Schimpanse_Zoo_Leipzig.jpg'),
-
-                                                                                                                          ('Gorila', 'Gorilla gorilla', 'O maior primata existente. Apesar da sua força colossal, é um gigante gentil e vegetariano que vive em grupos familiares.', 180, 170, 0, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bb/Gorilla_Lorraine_02.jpg/640px-Gorilla_Lorraine_02.jpg'),
-
-                                                                                                                          ('Koala', 'Phascolarctos cinereus', 'Marsupial australiano que passa a maior parte do dia a dormir para digerir as folhas tóxicas de eucalipto.', 12, 70, 0, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/49/Koala_climbing_tree.jpg/640px-Koala_climbing_tree.jpg'),
-
-                                                                                                                          ('Panda Vermelho', 'Ailurus fulgens', 'Pequeno mamífero dos Himalaias. É solitário, arborícola e usa a cauda felpuda para se equilibrar e aquecer.', 5, 25, 50, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Red_Panda_%2825193861686%29.jpg/640px-Red_Panda_%2825193861686%29.jpg'),
-
-                                                                                                                          ('Lémure de Cauda Anelada', 'Lemur catta', 'Endémico de Madagáscar. Reconhecível pela cauda com anéis pretos e brancos. Adora apanhar banhos de sol.', 3, 40, 0, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/06/Ring-tailed_lemur_%28Lemur_catta%29.jpg/640px-Ring-tailed_lemur_%28Lemur_catta%29.jpg'),
-
-                                                                                                                          ('Pinguim do Cabo', 'Spheniscus demersus', 'A única espécie de pinguim que se reproduz em África. Conhecido pelo seu "smoking" natural e som semelhante a um burro.', 3, 60, 0, 2, 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/Mancot_01.jpg/640px-Mancot_01.jpg'),
-
-                                                                                                                          ('Urso Pardo', 'Ursus arctos', 'Um grande omnívoro poderoso. Prepara-se para o inverno acumulando grandes reservas de gordura para hibernar.', 400, 150, 200, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/2010-kodiak-bear-1.jpg/640px-2010-kodiak-bear-1.jpg'),
-
-                                                                                                                          ('Rinoceronte Branco', 'Ceratotherium simum', 'O segundo maior mamífero terrestre. O nome vem de um erro de tradução ("wijde" - boca larga). Tem dois cornos de queratina.', 2300, 180, 400, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/ba/White_Rhino_at_Kigio_Wildlife_Conservancy.jpg/640px-White_Rhino_at_Kigio_Wildlife_Conservancy.jpg'),
-
-                                                                                                                          ('Hipopótamo', 'Hippopotamus amphibius', 'Passa o dia na água para proteger a pele. Apesar do peso, corre mais rápido que um humano e é muito territorial.', 1500, 150, 450, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Hippopotamus_amphibius_-_01.jpg/640px-Hippopotamus_amphibius_-_01.jpg'),
-
-                                                                                                                          ('Lince Ibérico', 'Lynx pardinus', 'O felino mais ameaçado do mundo, exclusivo da Península Ibérica. Alimenta-se quase exclusivamente de coelhos.', 13, 50, 90, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Iberian_Lynx_cub_and_adult.jpg/640px-Iberian_Lynx_cub_and_adult.jpg'),
-
-                                                                                                                          ('Suricata', 'Suricata suricatta', 'Pequeno mamífero famoso por ficar de pé a vigiar o território. Vive em colónias subterrâneas cooperativas.', 0.7, 25, 0, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/Suricata_suricatta_2.jpg/640px-Suricata_suricatta_2.jpg'),
-
-                                                                                                                          ('Aligátor Americano', 'Alligator mississippiensis', 'Grande réptil dos pântanos. Distingue-se do crocodilo pelo focinho em forma de U e dentes inferiores escondidos.', 300, 0, 400, 3, 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/32/Alligator_mississippiensis_-_Oasis_Park_-_13.jpg/640px-Alligator_mississippiensis_-_Oasis_Park_-_13.jpg'),
-
-                                                                                                                          ('Arara Azul e Amarela', 'Ara ararauna', 'Papagaio grande e colorido da América do Sul. Muito inteligente e vocal, pode viver até 70 anos.', 1.1, 0, 85, 2, 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/Ara_ararauna_Luc_Viatour.jpg/640px-Ara_ararauna_Luc_Viatour.jpg'),
-
-                                                                                                                          ('Bongo', 'Tragelaphus eurycerus', 'Antílope florestal noturno com pelagem castanha avermelhada e riscas brancas para camuflagem na floresta densa.', 250, 120, 200, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/Bongo_antelope_arp.jpg/640px-Bongo_antelope_arp.jpg'),
-
-                                                                                                                          ('Okapi', 'Okapia johnstoni', 'Parente vivo mais próximo da girafa, embora pareça uma zebra nas pernas. Tem uma língua azul muito longa.', 250, 150, 250, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Okapi2.jpg/640px-Okapi2.jpg'),
-
-                                                                                                                          ('Ádax', 'Addax nasomaculatus', 'Antílope do deserto do Saara. A sua pelagem muda de cor com as estações (branca no verão, castanha no inverno).', 100, 105, 160, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9d/Addax_nasomaculatus_at_Marwell_Wildlife.jpg/640px-Addax_nasomaculatus_at_Marwell_Wildlife.jpg'),
-
-                                                                                                                          ('Bisonte Americano', 'Bison bison', 'O gigante da pradaria norte-americana. A sua cabeça massiça funciona como limpa-neves no inverno.', 900, 180, 300, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/American_bison_k5680-1.jpg/640px-American_bison_k5680-1.jpg'),
-
-                                                                                                                          ('Búfalo Africano', 'Syncerus caffer', 'Conhecido pela sua "armadura" de cornos fundidos na cabeça. Um dos animais mais temidos de África.', 700, 150, 300, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Syncerus_caffer_caffer_male_Kruger.jpg/640px-Syncerus_caffer_caffer_male_Kruger.jpg'),
-
-                                                                                                                          ('Tartaruga Gigante', 'Aldabrachelys gigantea', 'Uma das maiores tartarugas do mundo. Pode viver mais de 150 anos e pesa tanto como um leão.', 250, 60, 120, 3, 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Aldabra_Giant_Tortoise_Geochelone_gigantea.jpg/640px-Aldabra_Giant_Tortoise_Geochelone_gigantea.jpg'),
-
-                                                                                                                          ('Canguru Vermelho', 'Osphranter rufus', 'O maior marsupial do mundo. Usa a cauda robusta como terceira perna para equilíbrio.', 85, 150, 0, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/Red_kangaroo_-_Sascha_Unger.jpg/640px-Red_kangaroo_-_Sascha_Unger.jpg'),
-
-                                                                                                                          ('Muntjac Chinês', 'Muntiacus reevesi', 'Pequeno veado conhecido como "veado-ladrador" pelo som que faz. Os machos têm dentes caninos alongados.', 15, 50, 0, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/Muntiacus_reevesi_in_Japan.jpg/640px-Muntiacus_reevesi_in_Japan.jpg'),
-
-                                                                                                                          ('Palanca Negra', 'Hippotragus niger', 'Um dos antílopes mais majestosos de África, com cornos curvos em forma de cimitarra. Símbolo de Angola.', 230, 140, 0, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/Sable_antelope_%28Hippotragus_niger%29_adult_male.jpg/640px-Sable_antelope_%28Hippotragus_niger%29_adult_male.jpg'),
-
-                                                                                                                          ('Colobo Guereza', 'Colobus guereza', 'Macaco arborícola preto e branco com uma cauda longa. Não tem polegares, o que ajuda a saltar entre ramos.', 10, 60, 0, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/23/Mantled_guereza_%28Colobus_guereza%29.jpg/640px-Mantled_guereza_%28Colobus_guereza%29.jpg'),
-
-                                                                                                                          ('Chita', 'Acinonyx jubatus', 'O animal terrestre mais rápido, atingindo 110km/h. Não ruge, mas mia e ronrona como um gato.', 50, 80, 130, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/TheCheethcat.jpg/640px-TheCheethcat.jpg'),
-
-                                                                                                                          ('Babuíno Hamadrias', 'Papio hamadryas', 'Primata social que era sagrado no Antigo Egito. Os machos têm uma juba prateada impressionante.', 25, 70, 0, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/77/Babouin_hamadryas_M_singe.jpg/640px-Babouin_hamadryas_M_singe.jpg'),
-
-                                                                                                                          ('Pelicano', 'Pelecanus onocrotalus', 'Ave aquática com uma enorme bolsa no bico que pode conter 13 litros de água e peixe.', 10, 0, 160, 2, 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Pelecanus_onocrotalus_1.jpg/640px-Pelecanus_onocrotalus_1.jpg'),
-
-                                                                                                                          ('Leopardo da Pérsia', 'Panthera pardus saxicolor', 'Uma das maiores subespécies de leopardo. Mestre da camuflagem e força, sobe árvores com presas pesadas.', 70, 70, 150, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/Persian_Leopard_sitting.jpg/640px-Persian_Leopard_sitting.jpg'),
-
-                                                                                                                          ('Serval', 'Leptailurus serval', 'Felino de pernas longas e orelhas grandes que funcionam como radares. Salta 3 metros para apanhar aves.', 15, 60, 90, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d2/Serval_semiprofil.jpg/640px-Serval_semiprofil.jpg'),
-
-                                                                                                                          ('Órix', 'Oryx gazella', 'O "unicórnio" do deserto devido aos cornos longos e retos. Consegue sobreviver semanas sem água.', 200, 120, 0, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/Gemsbok_Oryx_gazella.jpg/640px-Gemsbok_Oryx_gazella.jpg'),
-
-                                                                                                                          ('Rinoceronte Indiano', 'Rhinoceros unicornis', 'Distingue-se pela pele com dobras que parece uma armadura e por ter apenas um corno.', 2000, 170, 350, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Indian_Rhinoceros_Rhinoceros_unicornis.jpg/640px-Indian_Rhinoceros_Rhinoceros_unicornis.jpg'),
-
-                                                                                                                          ('Puma', 'Puma concolor', 'Também chamado de leão-da-montanha. Tem a maior distribuição de qualquer mamífero nas Américas.', 80, 70, 150, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1c/Puma_Face.jpg/640px-Puma_Face.jpg'),
-
-                                                                                                                          ('Águia das Estepes', 'Aquila nipalensis', 'Ave de rapina migratória. O canto da boca vai até atrás do olho, parecendo um sorriso.', 3.2, 76, 0, 2, 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/88/Steppe_Eagle.jpg/640px-Steppe_Eagle.jpg'),
-
-                                                                                                                          ('Anaconda Amarela', 'Eunectes notaeus', 'Serpente constritora não venenosa. Segunda maior boa da América do Sul, excelente nadadora.', 30, 0, 350, 3, 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/Eunectes_notaeus01.jpg/640px-Eunectes_notaeus01.jpg'),
-
-                                                                                                                          ('Araçari Verde', 'Pteroglossus viridis', 'O membro mais pequeno da família dos tucanos. Apresenta cores diferentes entre macho e fêmea.', 0.13, 0, 35, 2, 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/Green_Aracari-2.jpg/640px-Green_Aracari-2.jpg'),
-
-                                                                                                                          ('Arara de Asa Verde', 'Ara chloropterus', 'Muitas vezes confundida com a arara escarlate, mas tem riscas verdes nas asas e linhas vermelhas na face.', 1.5, 0, 92, 2, 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/90/Ara_chloropterus_-Vogelburg_Weilrod%2C_Taunus%2C_Germany-8a.jpg/640px-Ara_chloropterus_-Vogelburg_Weilrod%2C_Taunus%2C_Germany-8a.jpg'),
-
-                                                                                                                          ('Arara de Fronte Vermelha', 'Ara rubrogenys', 'Espécie rara da Bolívia. Vive em penhascos áridos e catos, ao contrário de outras araras de floresta.', 0.55, 0, 60, 2, 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/Ara_rubrogenys_-upper_body-8a.jpg/640px-Ara_rubrogenys_-upper_body-8a.jpg'),
-
-                                                                                                                          ('Arara Escarlate', 'Ara macao', 'Ave de cores vibrantes (vermelho, amarelo, azul). Muito social e barulhenta na floresta tropical.', 1.2, 0, 86, 2, 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Ara_macao_qtl3.jpg/640px-Ara_macao_qtl3.jpg'),
-
-                                                                                                                          ('Arara Jacinta', 'Anodorhynchus hyacinthinus', 'A maior de todas as araras. O seu bico é tão forte que parte cocos. Tem uma cor azul-cobalto incrível.', 1.5, 0, 100, 2, 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/66/Anodorhynchus_hyacinthinus_-Hyacinth_Macaw_-side_of_head.jpg/640px-Anodorhynchus_hyacinthinus_-Hyacinth_Macaw_-side_of_head.jpg');
-
-
--- ==================================================================================
+                                                                                                                          ('Tigre da Sibéria', 'Panthera tigris altaica', 'O maior felino do mundo. Pelagem laranja com riscas pretas.', 300, 110, 330, 1, 'animal_tigre_da_siberia'),
+                                                                                                                          ('Tigre Branco', 'Panthera tigris', 'Variação rara do tigre de Bengala. Olhos azuis e nariz rosado.', 220, 100, 300, 1, 'animal_tigre_branco'),
+                                                                                                                          ('Leão Africano', 'Panthera leo', 'O rei da selva. Machos têm juba imponente.', 190, 120, 250, 1, 'animal_leao_africano'),
+                                                                                                                          ('Golfinho Roaz', 'Tursiops truncatus', 'Mamífero marinho inteligente. Usa ecolocalização.', 300, 0, 400, 1, 'animal_golfinho_roaz'),
+                                                                                                                          ('Elefante Africano', 'Loxodonta africana', 'Maior mamífero terrestre. Grandes orelhas.', 6000, 330, 700, 1, 'animal_elefante_africano'),
+                                                                                                                          ('Girafa', 'Giraffa camelopardalis', 'Animal mais alto do mundo. Língua azul.', 1200, 550, 0, 1, 'animal_girafa'),
+                                                                                                                          ('Chimpanzé', 'Pan troglodytes', 'Parente próximo do humano. Usa ferramentas.', 60, 120, 0, 1, 'animal_chimpanze'),
+                                                                                                                          ('Gorila', 'Gorilla gorilla', 'Maior primata. Gigante gentil e vegetariano.', 180, 170, 0, 1, 'animal_gorila'),
+                                                                                                                          ('Koala', 'Phascolarctos cinereus', 'Dorme a maior parte do dia. Come eucalipto.', 12, 70, 0, 1, 'animal_koala'),
+                                                                                                                          ('Panda Vermelho', 'Ailurus fulgens', 'Pequeno mamífero dos Himalaias. Solitário.', 5, 25, 50, 1, 'animal_panda_vermelho'),
+                                                                                                                          ('Lémure de Cauda Anelada', 'Lemur catta', 'Endémico de Madagáscar. Cauda com anéis.', 3, 40, 0, 1, 'animal_lemure_de_cauda_anelada'),
+                                                                                                                          ('Pinguim do Cabo', 'Spheniscus demersus', 'Único pinguim que se reproduz em África.', 3, 60, 0, 2, 'animal_pinguim_do_cabo'),
+                                                                                                                          ('Urso Pardo', 'Ursus arctos', 'Grande omnívoro. Hiberna no inverno.', 400, 150, 200, 1, 'animal_urso_pardo'),
+                                                                                                                          ('Rinoceronte Branco', 'Ceratotherium simum', 'Segundo maior mamífero. Dois cornos.', 2300, 180, 400, 1, 'animal_rinoceronte_branco'),
+                                                                                                                          ('Hipopótamo', 'Hippopotamus amphibius', 'Passa o dia na água. Muito territorial.', 1500, 150, 450, 1, 'animal_hipopotamo'),
+                                                                                                                          ('Lince Ibérico', 'Lynx pardinus', 'Felino ameaçado. Come coelhos.', 13, 50, 90, 1, 'animal_lince_iberico'),
+                                                                                                                          ('Suricata', 'Suricata suricatta', 'Fica de pé a vigiar. Vive em colónias.', 0.7, 25, 0, 1, 'animal_suricata'),
+                                                                                                                          ('Aligátor Americano', 'Alligator mississippiensis', 'Réptil dos pântanos. Focinho em U.', 300, 0, 400, 3, 'animal_aligator_americano'),
+                                                                                                                          ('Arara Azul e Amarela', 'Ara ararauna', 'Papagaio colorido e inteligente.', 1.1, 0, 85, 2, 'animal_arara_azul_e_amarela'),
+                                                                                                                          ('Bongo', 'Tragelaphus eurycerus', 'Antílope noturno com riscas brancas.', 250, 120, 200, 1, 'animal_bongo'),
+                                                                                                                          ('Okapi', 'Okapia johnstoni', 'Parente da girafa com pernas de zebra.', 250, 150, 250, 1, 'animal_okapi'),
+                                                                                                                          ('Ádax', 'Addax nasomaculatus', 'Antílope do Saara. Muda de cor.', 100, 105, 160, 1, 'animal_adax'),
+                                                                                                                          ('Bisonte Americano', 'Bison bison', 'Gigante da pradaria. Cabeça massiça.', 900, 180, 300, 1, 'animal_bisonte_americano'),
+                                                                                                                          ('Búfalo Africano', 'Syncerus caffer', 'Cornos fundidos como armadura.', 700, 150, 300, 1, 'animal_bufalo_africano'),
+                                                                                                                          ('Tartaruga Gigante', 'Aldabrachelys gigantea', 'Vive mais de 150 anos. Pesa muito.', 250, 60, 120, 3, 'animal_tartaruga_gigante'),
+                                                                                                                          ('Canguru Vermelho', 'Osphranter rufus', 'Maior marsupial. Usa a cauda.', 85, 150, 0, 1, 'animal_canguru_vermelho'),
+                                                                                                                          ('Muntjac Chinês', 'Muntiacus reevesi', 'Veado-ladrador. Machos têm presas.', 15, 50, 0, 1, 'animal_muntjac_chines'),
+                                                                                                                          ('Palanca Negra', 'Hippotragus niger', 'Símbolo de Angola. Cornos curvos.', 230, 140, 0, 1, 'animal_palanca_negra'),
+                                                                                                                          ('Colobo Guereza', 'Colobus guereza', 'Macaco preto e branco sem polegares.', 10, 60, 0, 1, 'animal_colobo_guereza'),
+                                                                                                                          ('Chita', 'Acinonyx jubatus', 'Animal mais rápido. Mia e ronrona.', 50, 80, 130, 1, 'animal_chita'),
+                                                                                                                          ('Babuíno Hamadrias', 'Papio hamadryas', 'Primata sagrado. Juba prateada.', 25, 70, 0, 1, 'animal_babuino_hamadrias'),
+                                                                                                                          ('Pelicano', 'Pelecanus onocrotalus', 'Ave com bolsa enorme no bico.', 10, 0, 160, 2, 'animal_pelicano'),
+                                                                                                                          ('Leopardo da Pérsia', 'Panthera pardus saxicolor', 'Mestre da camuflagem. Sobe árvores.', 70, 70, 150, 1, 'animal_leopardo_da_persia'),
+                                                                                                                          ('Serval', 'Leptailurus serval', 'Orelhas grandes. Salta muito alto.', 15, 60, 90, 1, 'animal_serval'),
+                                                                                                                          ('Órix', 'Oryx gazella', 'Unicórnio do deserto. Sobrevive sem água.', 200, 120, 0, 1, 'animal_orix'),
+                                                                                                                          ('Rinoceronte Indiano', 'Rhinoceros unicornis', 'Pele parece armadura. Um só corno.', 2000, 170, 350, 1, 'animal_rinoceronte_indiano'),
+                                                                                                                          ('Puma', 'Puma concolor', 'Leão-da-montanha. Grande distribuição.', 80, 70, 150, 1, 'animal_puma'),
+                                                                                                                          ('Águia das Estepes', 'Aquila nipalensis', 'Ave de rapina. Boca parece sorriso.', 3.2, 76, 0, 2, 'animal_aguia_das_estepes'),
+                                                                                                                          ('Anaconda Amarela', 'Eunectes notaeus', 'Serpente constritora. Nada bem.', 30, 0, 350, 3, 'animal_anaconda_amarela'),
+                                                                                                                          ('Araçari Verde', 'Pteroglossus viridis', 'Pequeno tucano colorido.', 0.13, 0, 35, 2, 'animal_aracari_verde'),
+                                                                                                                          ('Arara de Asa Verde', 'Ara chloropterus', 'Riscas verdes nas asas.', 1.5, 0, 92, 2, 'animal_arara_de_asa_verde'),
+                                                                                                                          ('Arara de Fronte Vermelha', 'Ara rubrogenys', 'Espécie rara da Bolívia.', 0.55, 0, 60, 2, 'animal_arara_de_fronte_vermelha'),
+                                                                                                                          ('Arara Escarlate', 'Ara macao', 'Ave de cores vibrantes.', 1.2, 0, 86, 2, 'animal_arara_escarlate'),
+                                                                                                                          ('Arara Jacinta', 'Anodorhynchus hyacinthinus', 'Maior das araras. Azul-cobalto.', 1.5, 0, 100, 2, 'animal_arara_jacinta');
 -- 6. LIGAÇÃO ANIMAL -> LOCAL (TABELA AE)
 -- ==================================================================================
 
@@ -387,4 +343,4 @@ INSERT INTO stock (stock_amount, stock_kio_id, stock_pro_id) VALUES (50, 1, 1), 
 
 INSERT INTO favorite (fav_ani_id, fav_per_id, fav_animal) VALUES (1, 1, 'true');
 
-SELECT '✅ Base de Dados ZOOPOLIS reconstruída com SUCESSO (Com URLs da Internet)!' as status;
+SELECT 'Base de Dados ZOOPOLIS reconstruída com SUCESSO (Com URLs da Internet)!' as status;

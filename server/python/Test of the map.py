@@ -1,7 +1,7 @@
 import osmnx as ox
 import xml.etree.ElementTree as ET
 
-print("--- 1. CARREGANDO O GRAFO (CAMINHOS) ---")
+print("1. A Carregar o Grafo (caminhos) ")
 
 try:
     # Lê o arquivo zoo.osm (Grifo/Ruas)
@@ -23,7 +23,7 @@ except Exception as e:
     print(f"Ocorreu um erro no grafo: {e}")
     exit()
 
-print("\n--- 2. MAPEANDO AS ATRAÇÕES (ANIMAIS/LOCAIS) ---")
+print("\n2. A Mapear as atrações (animais/locais) ---")
 
 try:
     # Carrega o mesmo arquivo como XML puro para ler os nomes
@@ -36,7 +36,7 @@ try:
     # Lista final para você usar
     meus_locais = {}
 
-    # PASSO A: Ler a posição de TODOS os nós
+    # 1: Ler a posição de TODOS os nós
     for node in root.findall('node'):
         id_no = node.get('id')
         lat = float(node.get('lat'))
@@ -53,7 +53,7 @@ try:
             meus_locais[nome] = (lat, lon)
             print(f"[PONTO] {nome}: {lat}, {lon}")
 
-    # PASSO B: Ler as Áreas (Ways) (Ex: Jaula dos Leões, Restaurantes)
+    # 2: Ler as Áreas (Ways) (Ex: Jaula dos Leões, Restaurantes)
     for way in root.findall('way'):
         nome = None
         for tag in way.findall('tag'):
